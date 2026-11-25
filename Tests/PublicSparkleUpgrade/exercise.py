@@ -90,7 +90,7 @@ def run():
     assert call('pgrep','-x','Riftlet',check=False).returncode!=0
     work.mkdir(mode=0o700)
     source=work/'source';source.mkdir()
-    fixture=runpy.run_path(str(testdir/'fixture.py'))['build'](repo,work) if mode=='upgrade' else None
+    fixture=runpy.run_path(str(testdir/'fixture.py'))['build'](repo,work)
     process=work/'process'; verifier=work/'verify'
     call('xcrun','swiftc',testdir.parent/'ReleaseUpgradeHost/app-process.swift','-o',process,timeout=100)
     call('xcrun','swiftc',repo/'scripts/verify-update-signature.swift','-o',verifier,timeout=100)
@@ -130,25 +130,29 @@ def run():
     wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collection folder')
     inputs=[common['collect_fixture'](source,seed,data) for seed in (43,199)]
     first_pid=old
-    old_sample=None
-    if mode=='upgrade':
-        # Work through the released Core exclusively in a separate fixture directory while the
-        # old app is stopped; never edit the ordinary app's database through SQL.
-        call(process,'quit',app)
-        detached=work/'detached65'
-        common['move_idle_root'](data,detached,process,app)
-        try:
-            old_sample=json.loads(call(fixture,detached,inputs[0]).stdout)
-        finally:
-            assert not data.exists()
-            detached.rename(data)
-        call('open','-n','-g',app)
-        old=waiting_pid(different=first_pid)
-        wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collector after restoring QA fixture')
+    # Work through the released Core exclusively in a separate fixture directory while the
+    # old app is stopped; never edit the ordinary app's database through SQL.
+    call(process,'quit',app)
+    detached=work/'detached65'
+    common['move_idle_root'](data,detached,process,app)
+    try:
+        # Build 65 documents {} as its user-selected 'off' lifecycle preference.
+        # Prevent the normal idle-archive timer from independently changing fixture rows.
+        lifecycle=detached/'lifecycle-settings.json'
+        assert not lifecycle.is_symlink()
+        if lifecycle.exists(): assert isinstance(json.loads(lifecycle.read_text()),dict)
+        lifecycle.write_text('{}\n')
+        old_sample=json.loads(call(fixture,detached,inputs[0]).stdout)
+    finally:
+        assert not data.exists()
+        detached.rename(data)
+    call('open','-n','-g',app)
+    old=waiting_pid(different=first_pid)
+    wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collector after restoring QA fixture')
     before=common['snapshot'](data)
     assert len(before['assets'])==2 and len(set(inputs))==2 and set(before['media'].values())==set(inputs)
     assert len(before['journals'])==2 and before['upload_starts']==0
-    assert before['operations']==(1 if mode=='upgrade' else 0)
+    assert before['operations']==1
     def operation_proof():
         oid=old_sample['operationID']; aid=old_sample['assetID']; iid=old_sample['invocationID']
         with sqlite3.connect((data/'queue.sqlite').as_uri()+'?mode=ro',uri=True) as db:
@@ -168,7 +172,7 @@ def run():
                     'invocationID':iid,'historyVisibility':visible[0],'historyReason':visible[1],
                     'receiptSHA256':hashlib.sha256(row[3].encode()).hexdigest(),'dispatchCheckpointSHA256':hashlib.sha256(raw).hexdigest(),
                     'fixtureScope':'Synthetic offline UNKNOWN created with signed build 65 source QueueStore APIs in an idle, detached, hosted test library; real build 65 collected the PNGs.'}
-    old_op=operation_proof() if mode=='upgrade' else None
+    old_op=operation_proof()
     prefs={k:pref(k) for k in (key,'SUEnableAutomaticChecks','historyDisplayStyle')}
     assert prefs['historyDisplayStyle']=='imageGrid'
     proof['oldLibrary']={'sqliteSnapshotSHA256':save_database('before.sqlite'),'assetCount':2,'originalPNGHashes':inputs,'preferences':prefs,
@@ -191,8 +195,8 @@ def run():
     after=common['snapshot'](data)
     for part in ('assets','operationRows','startRows','media','journals'): assert before[part]==after[part],part
     assert all(pref(k)==v for k,v in prefs.items())
-    if mode=='upgrade':
-        assert operation_proof()==old_op and old_op is not None
+    assert operation_proof()==old_op and old_op is not None
+    assert json.loads((data/'lifecycle-settings.json').read_text())=={}
     assert [sha(source/name) for name in ('Screenshot-identity-43.png','Screenshot-identity-199.png')]==inputs
     proof['retainedLibrary']={'sqliteSnapshotSHA256':save_database('after.sqlite'),'oldRowsAndMediaExact':True,'preferencesUnchanged':True,
                               'newPID':new,'installed':expected,'retainedHistoricOperation':old_op}
