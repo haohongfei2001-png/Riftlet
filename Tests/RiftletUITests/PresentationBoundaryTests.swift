@@ -326,10 +326,25 @@ final class PresentationBoundaryTests: XCTestCase {
             let b = record(40, status: .used, visibility: .swallowed, revision: 1, reason: .traySelection)
             let earlier = (1...38).map { record(Int64($0), visibility: .archived, reason: .automaticArchive) }
             let all = earlier + [a, b, c]
+            let ranks = Dictionary(uniqueKeysWithValues: all.map { ($0.id, $0.sequence) })
+            let mode = ProcessInfo.processInfo.environment["RIFTLET_SCROLL_PROBE_MODE"] ?? "sync"
+            func snapshot(_ label: String) {
+                let seqs = panel.diagnosticSnapshot.rows.compactMap { ranks[$0.assetID] }
+                print("TIMELINE \(mode) \(form) \(label) offset=\(panel.timelineOffset) max=\(panel.maximumTimelineOffset) visible=\(seqs)")
+            }
+            var pageDelivered = false
             var cursors: [Int64] = []
             panel.onLoadOlderTimeline = { sequence in
                 cursors.append(sequence)
-                panel.render([a, c], timeline: all, hasOlder: false)
+                snapshot("request")
+                let deliver = {
+                    snapshot("before page")
+                    panel.render([a, c], timeline: all, hasOlder: false)
+                    pageDelivered = true
+                    snapshot("after page")
+                }
+                if mode == "sync" { deliver() }
+                else { DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(15)) { deliver() } }
             }
             panel.render([a, c], timeline: Array(all.suffix(24)), hasOlder: true)
             XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [a.id, c.id])
@@ -339,8 +354,13 @@ final class PresentationBoundaryTests: XCTestCase {
             XCTAssertGreaterThan(panel.timelineOffset, 0)
             XCTAssertLessThan(panel.timelineOffset, 8, "The first scroll must move by pixels")
             var seen = Set(panel.diagnosticSnapshot.rows.map(\.assetID))
+            var previousRows: [UUID] = []
             func sampleRows() {
                 let rows = panel.diagnosticSnapshot.rows.map(\.assetID)
+                if rows != previousRows {
+                    snapshot("sample")
+                    previousRows = rows
+                }
                 XCTAssertEqual(Set(rows).count, rows.count)
                 seen.formUnion(rows)
             }
@@ -359,8 +379,17 @@ final class PresentationBoundaryTests: XCTestCase {
                     }
                     checkedOrigins = true
                 }
+                if mode == "deferredSlow" {
+                    let until = Date().addingTimeInterval(0.035)
+                    _ = TimelineWheelFixture.wait(until: { Date() >= until }, sampling: sampleRows)
+                }
+                if panel.maximumTimelineOffset - panel.timelineOffset < 1, !cursors.isEmpty && !pageDelivered {
+                    _ = TimelineWheelFixture.wait(until: { pageDelivered }, sampling: sampleRows)
+                }
                 if panel.maximumTimelineOffset - panel.timelineOffset < 1 { break }
             }
+            snapshot("end forward")
+            print("TIMELINE \(mode) \(form) missing=\(Set(all.map(\.id)).subtracting(seen).compactMap { ranks[$0] }.sorted())")
             XCTAssertEqual(cursors, [18])
             XCTAssertEqual(seen, Set(all.map(\.id)))
             XCTAssertEqual(selections, [a.id, b.id])
