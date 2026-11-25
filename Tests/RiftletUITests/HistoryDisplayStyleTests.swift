@@ -207,7 +207,8 @@ final class HistoryDisplayStyleTests: XCTestCase {
     func testStyleRoundTripPreservesQueryFilterPageUUIDDetailAndExactActionTarget() async throws {
         try display()
         let dir = try directory(), image = try asset(in: dir), other = try asset(in: dir, date: Date().addingTimeInterval(-120))
-        let selected = RiftHistoryEntry(record: AssetRecord(image: image, sequence: 2, visibility: .archived), canRestore: true)
+        let selected = RiftHistoryEntry(record: AssetRecord(image: image, sequence: 2, visibility: .swallowed,
+                                                           visibilityReason: .traySelection), canRestore: true)
         var restored: [UUID] = [], revealed: [UUID] = [], paging = 0
         weak var owner: RiftHistoryController?
         let controller = RiftHistoryController(copy: .simplifiedChinese, mediaDirectory: dir, onRestore: { restored.append($0) }, onRemove: { _ in XCTFail("Unexpected remove") },

@@ -64,6 +64,10 @@ public struct RiftHistoryEntry: Identifiable, Equatable, Sendable {
     }
 
     public var canRestoreToRift: Bool {
+        if record.visibility == .swallowed {
+            return canRestore && record.visibilityReason == .traySelection &&
+                record.status == .pending && record.activeOperationID == nil && operation == nil
+        }
         guard canRestore,
               record.visibility == .archived || record.visibility == .removed,
               record.status == .pending || record.status == .failed else { return false }
