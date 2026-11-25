@@ -2,6 +2,7 @@
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
+import base64
 import json
 import os
 from pathlib import Path
@@ -89,6 +90,7 @@ def run():
     assert call('pgrep','-x','Riftlet',check=False).returncode!=0
     work.mkdir(mode=0o700)
     source=work/'source';source.mkdir()
+    fixture=runpy.run_path(str(testdir/'fixture.py'))['build'](repo,work) if mode=='upgrade' else None
     process=work/'process'; verifier=work/'verify'
     call('xcrun','swiftc',testdir.parent/'ReleaseUpgradeHost/app-process.swift','-o',process,timeout=100)
     call('xcrun','swiftc',repo/'scripts/verify-update-signature.swift','-o',verifier,timeout=100)
@@ -122,16 +124,55 @@ def run():
     key='Riftlet.firstUse.presented.v1.Riftlet'
     call('defaults','write','com.riftlet.app',key,'-bool','true')
     call('defaults','write','com.riftlet.app','SUEnableAutomaticChecks','-bool','false')
+    call('defaults','write','com.riftlet.app','historyDisplayStyle','-string','imageGrid')
     call('open','-n','-g',app)
     old=waiting_pid()
     wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collection folder')
     inputs=[common['collect_fixture'](source,seed,data) for seed in (43,199)]
+    first_pid=old
+    old_sample=None
+    if mode=='upgrade':
+        # Work through the released Core exclusively in a separate fixture directory while the
+        # old app is stopped; never edit the ordinary app's database through SQL.
+        call(process,'quit',app)
+        detached=work/'detached65'
+        common['move_idle_root'](data,detached,process,app)
+        try:
+            old_sample=json.loads(call(fixture,detached,inputs[0]).stdout)
+        finally:
+            assert not data.exists()
+            detached.rename(data)
+        call('open','-n','-g',app)
+        old=waiting_pid(different=first_pid)
+        wait(lambda:call('lsof','-nP','-a','-p',old,'-Ffn',source,check=False).returncode==0,'old collector after restoring QA fixture')
     before=common['snapshot'](data)
     assert len(before['assets'])==2 and len(set(inputs))==2 and set(before['media'].values())==set(inputs)
-    assert len(before['journals'])==2 and before['operations']==before['upload_starts']==0
-    prefs={k:pref(k) for k in (key,'SUEnableAutomaticChecks')}
+    assert len(before['journals'])==2 and before['upload_starts']==0
+    assert before['operations']==(1 if mode=='upgrade' else 0)
+    def operation_proof():
+        oid=old_sample['operationID']; aid=old_sample['assetID']; iid=old_sample['invocationID']
+        with sqlite3.connect((data/'queue.sqlite').as_uri()+'?mode=ro',uri=True) as db:
+            row=db.execute('SELECT asset_id, attempt, phase, receipt_json FROM operations WHERE id=?',(oid,)).fetchone()
+            assert row[:3]==(aid,1,'unknown') and old_sample['attempt']==row[1]
+            receipt=json.loads(row[3])
+            assert receipt['operationID']==oid and receipt['assetID']==aid and receipt['attempt']==row[1]
+            assert receipt['assetSHA256']==inputs[0] and receipt['outcome']=='unknown' and receipt['profileID']=='offline-upgrade-qa'
+            assert receipt['safeToRetry'] is False
+            cp=db.execute('SELECT value FROM checkpoints WHERE key=?',('transfer-dispatch-call-v1:'+oid,)).fetchone()[0]
+            raw=base64.b64decode(cp); invocation=json.loads(raw)
+            assert invocation['invocationID']==iid and invocation['operationID']==oid
+            assert invocation['returnedReceipt']==receipt and invocation['inputExecutionReturned'] is True
+            visible=db.execute('SELECT visibility,visibility_reason,status FROM assets WHERE id=?',(aid,)).fetchone()
+            assert visible[:2]==('swallowed','traySelection') and visible[2]=='unknown'
+            return {'assetID':aid,'assetPNG':inputs[0],'operationID':oid,'attempt':row[1],'phase':row[2],
+                    'invocationID':iid,'historyVisibility':visible[0],'historyReason':visible[1],
+                    'receiptSHA256':hashlib.sha256(row[3].encode()).hexdigest(),'dispatchCheckpointSHA256':hashlib.sha256(raw).hexdigest(),
+                    'fixtureScope':'Synthetic offline UNKNOWN created with signed build 65 source QueueStore APIs in an idle, detached, hosted test library; real build 65 collected the PNGs.'}
+    old_op=operation_proof() if mode=='upgrade' else None
+    prefs={k:pref(k) for k in (key,'SUEnableAutomaticChecks','historyDisplayStyle')}
+    assert prefs['historyDisplayStyle']=='imageGrid'
     proof['oldLibrary']={'sqliteSnapshotSHA256':save_database('before.sqlite'),'assetCount':2,'originalPNGHashes':inputs,'preferences':prefs,
-                         'schema':before['schema'],'assetIDs':[a['id'] for a in before['assets']],'oldPID':old}
+                         'schema':before['schema'],'assetIDs':[a['id'] for a in before['assets']],'oldPID':old,'syntheticHistoricOperation':old_op}
     args=['xcodebuild','-project',str(testdir/'ProductUpgrade.xcodeproj'),'-scheme','PublicUpgrade',
           '-destination','platform=macOS,arch=x86_64','-derivedDataPath',str(work/'derived'),
           '-parallel-testing-enabled','NO','-only-testing:ProductUpgradeUI/PublicUpgradeUI/'+('testCurrentVersion' if mode=='preflight' else 'testPublicUpgrade'),'-resultBundlePath',str(work/'UI.xcresult'),'test']
@@ -150,9 +191,11 @@ def run():
     after=common['snapshot'](data)
     for part in ('assets','operationRows','startRows','media','journals'): assert before[part]==after[part],part
     assert all(pref(k)==v for k,v in prefs.items())
+    if mode=='upgrade':
+        assert operation_proof()==old_op and old_op is not None
     assert [sha(source/name) for name in ('Screenshot-identity-43.png','Screenshot-identity-199.png')]==inputs
     proof['retainedLibrary']={'sqliteSnapshotSHA256':save_database('after.sqlite'),'oldRowsAndMediaExact':True,'preferencesUnchanged':True,
-                              'newPID':new,'installed':expected}
+                              'newPID':new,'installed':expected,'retainedHistoricOperation':old_op}
     proof['status']='PUBLIC_IN_APP_UPGRADE_PASS' if mode=='upgrade' else 'PUBLIC_BUILD_65_UP_TO_DATE_PREFLIGHT_PASS'
 
 try:
