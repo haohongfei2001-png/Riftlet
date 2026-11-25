@@ -1,0 +1,114 @@
+{
+  "reviewer": "Independent 1.1.0 website release reviewer, Codex agent independent_110",
+  "reviewedAtUTC": "2026-11-25T16:48:33Z",
+  "scope": "Read-only supplementary review of original browser and AppKit records, official executable identity, retained PNGs, and a private post-exit copy of the dedicated QA SQLite database including WAL. Reviewer did not operate any browser.",
+  "priorWebsiteReviewSHA256": "73d0a50c05c278f6bd67cb602e393d5b782d8ec950315a66828d47506a46f5a5",
+  "candidate": {
+    "version": "1.1.0",
+    "build": 68,
+    "actualSignedSource": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+    "machOSHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+    "runningArm64CDHash": "72790bd46354b061c94d2257432e860f1a6a2586",
+    "dmgSHA256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1"
+  },
+  "noncollapsedSelection": {
+    "edge": {
+      "status": "PASS",
+      "browser": "Ordinary signed-in Edge, dedicated ChatGPT Temporary Chat",
+      "setup": "One trusted input entered the fixed draft, then a bounded separate QA command used Selection.setBaseAndExtent to set a backward selection. No file was submitted during preparation.",
+      "fixedDraft": "Riftlet QA: preserve this original draft while attaching images.",
+      "selectedText": "preserve this original draft",
+      "beforeAndAfter": {
+        "anchor": 40,
+        "anchorDOMOffset": 40,
+        "direction": "backward",
+        "end": 40,
+        "focus": 12,
+        "focusDOMOffset": 12,
+        "nativeDirection": "backward",
+        "selectedText": "preserve this original draft",
+        "start": 12
+      },
+      "sameOriginalDocumentFormEditorAndNavigationEntry": true,
+      "sameAnchorNodeFocusNodeAndBothDOMOffsets": true,
+      "draftUnchangedCharacterForCharacter": true,
+      "oneAcknowledgedAppKitMouseDown": true,
+      "nativeEvidence": "The kernel identity and ARM64 code directory matched the signed App. Exactly one mouse selection boundary matched the acknowledged event number and uptime; lease freeze and durable operation consumption shared the same request digest.",
+      "countsBefore": {
+        "fileChange": 0,
+        "fileInput": 0,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      },
+      "countsAfter": {
+        "fileChange": 1,
+        "fileInput": 1,
+        "formSubmit": 0,
+        "sendButtonClicks": 0
+      },
+      "cardsBeforeAfter": [
+        0,
+        1
+      ],
+      "sourcePNGAndStoredOriginalSHA256": "3fed04522a5794bde56dbdda6139754ab1de4ae79cd4558525d8476ec027d7a0",
+      "matchedSourceAndCardPixels": true,
+      "sqlite": {
+        "snapshot": "Stable isolated QA DB and WAL copied after App exit, inspected read-only, quick_check ok",
+        "assetRows": 1,
+        "operationRows": 1,
+        "uploadStartRows": 1,
+        "startSignal": "attachmentAccepted",
+        "startInputCount": 1,
+        "sameAssetOperationTargetAndSourceBytes": true,
+        "originalDocumentComposerAndDraftGenerationInTarget": true
+      },
+      "identityEvidenceScope": "The range observer retained real DOM object references to the document, navigation entry, original form/editor, anchor and focus. Its optional product ID fields were null in both reads. The product target identifiers were verified separately in the operation and START rows and their matching digests.",
+      "cleanup": "Owned window closed, initial window set and focus restored, isolated App exited. Explicit watcherEnded was false. The owned document was destroyed on closure; the final recorded same-document observation still showed zero send and zero submit."
+    },
+    "chrome": {
+      "status": "NOT_RUN",
+      "reason": "ORIGINAL_WINDOW_NOT_FRONT_AND_VISIBLE_AFTER_BOUNDED_SETTLE",
+      "scope": "The dedicated selected tab showed signed-in/editor/upload signals. The seven bounded foreground samples had the original process and selected tab, all with a protected surface and a different foreground owner.",
+      "foregroundSampleCount": 7,
+      "originalTabSelectedAllSamples": true,
+      "originalProcessAllSamples": true,
+      "protectedSurfaceAllSamples": true,
+      "noOriginalForegroundAllSamples": true,
+      "finalAttemptLaunchedProduct": false,
+      "productClicksOnFinalAttempt": 0,
+      "fileInputsOnFinalAttempt": 0,
+      "messageSent": false,
+      "ownedWindowClosed": true,
+      "priorWindowSetRestored": true,
+      "earlierPreparation": "No product click was issued in the earlier preparation attempts."
+    },
+    "safari": {
+      "status": "NOT_RUN",
+      "scope": "No new Safari selection case in this supplement."
+    }
+  },
+  "matrixAfterSupplement": {
+    "pass": 2,
+    "partial": 1,
+    "notRun": 54,
+    "totalDistinctBrowserProviderPairs": 57,
+    "publicReleaseApproved": false,
+    "effect": "Edge/ChatGPT already passed the original matrix. This adds a verified real backward selection for that combination. Chrome/ChatGPT retains its other verified cases. All eighteen other providers still lack an authenticated dedicated editable draft. Safari ChatGPT native drag remains partial at browser/provider level."
+  },
+  "evidenceSHA256": {
+    "edgeFinal": "386feb2f27fb760b800472b6156a15ea790325d9b5dcf9830071cab17ff85c43",
+    "edgeAdmit": "79d46d28270e346b6a255d36299bcce596fec3884d104b59ec21989bad0ed874",
+    "edgeRuntime": "d741e497f21cde2afd2e640c34190152c6108476a44e5097b696c9e7fbd25e7e",
+    "edgeTextPreparation": "8760a8db9ba568d6f336541cb4d560f5b05f23375311ebd05e41c1f5e6072584",
+    "edgeSelectionPreparation": "1bdfcf270138ffc99c9a3cc85b63160c729d32aa9dd6bc8600bd47479c739fa8",
+    "edgeSelectionBefore": "fe5c93aba57fd63750e32bd472c2d7d5c5d0d72b937d3a362153fe29f991435c",
+    "edgeAppKitReceipt": "eb0a3a2195dbc1580e319d34f0b4a6f675f7e8a311694c43db38b23f268c011a",
+    "edgeOriginalAppTrace": "e651474b78c90389f38fc259e67a459ba6a169902d151fe13e10114fca63e443",
+    "edgeWebsiteReadback": "28b914829767e5d6fd8d31fa7e1b5b114c10f27e9b1e281aab8d47eac10dd007",
+    "edgeSelectionAfter": "6547c86a6d72c017428cc12fe03691dd3b628f4bfd35b19de06c4670e2210b37",
+    "edgePrivateCleanup": "faa10bdf145b4d4498590851450270958277ed9ddde0ac41640a5ef012665c29",
+    "chromeFinal": "1731529ba2a3e3dc8085ebe2e4a2d9065d4bba2aa909cbaa2cc0c146b2a475fd",
+    "chromePreflight": "499308e4a5a7893e3f4223eea1e6cf57051236c773a721a75ca6796bf83a9d20",
+    "chromeExactWindowForeground": "6b3550cc05104e0d4056882434aa5969b2e5f6ca1ade0965479f215908303d05"
+  }
+}

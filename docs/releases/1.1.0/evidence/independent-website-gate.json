@@ -1,0 +1,127 @@
+{
+  "reviewer": "Independent 1.1.0 website release reviewer, Codex agent independent_110",
+  "reviewedAtUTC": "2026-11-25T15:05:05Z",
+  "independentOfSiteOperations": true,
+  "evidenceCommit": "0a27b01e4f5a4c647187949a975121847d2f94a2",
+  "evidenceTree": "27345a68be22e14bf01fe51c84bdee3d2a422e67",
+  "reviewScope": "Read-only independent examination of signed-package identities, redacted tables, original private QA event and SQLite-derived operation receipts, pixel matches, and public release channels. No browser gesture was executed by this reviewer.",
+  "productSource": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+  "dmgSHA256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1",
+  "machOSHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+  "version": "1.1.0",
+  "build": 68,
+  "websiteGate": "PARTIAL",
+  "publicReleaseApproved": false,
+  "matrix": {
+    "uniqueRows": 57,
+    "browsers": 3,
+    "distinctPlatforms": 19,
+    "counts": {
+      "PASS": 2,
+      "PARTIAL": 1,
+      "NOT_RUN": 54
+    },
+    "allMissingPairsMatchPerBrowserAdmissionReceipts": true,
+    "noUnexecutedRowCountsAsPassed": true
+  },
+  "chromeAndEdgeChatGPT": {
+    "accountAndDestination": "Ordinary signed browsers, authenticated newly created Temporary Chat. Each initial three-click sequence stayed in its original Document and Composer.",
+    "perBrowser": {
+      "single": 1,
+      "consecutiveDistinctImages": 2,
+      "independentInitialMouseClicks": 3,
+      "initialInputs": 3,
+      "initialChanges": 3,
+      "uniqueInitialInvocations": 3,
+      "uniqueInitialOperations": 3,
+      "initialDurableAttachmentAcceptedSTARTs": 3,
+      "explicitHistoryReattach": 1,
+      "historyNewInput": 1,
+      "historyNewChange": 1,
+      "sameSourcePNGNewOperationAndInvocation": true,
+      "nativeDropGesturesAccepted": 1,
+      "newCardsPerAcceptedDrop": 1,
+      "cancelledGestures": 1,
+      "newCardsAfterCancellation": 0,
+      "pageSendButtonClicks": 0,
+      "pageSubmitEvents": 0
+    },
+    "retention": "The two-image actions retained nonempty draft text, prior cards and their nodes. Original and displayed images matched. Accepted drags preserved both previous cards. Canceled drags retained the visible source and produced no click operation."
+  },
+  "safariChatGPT": {
+    "signedIn": true,
+    "nativeDrop": "PASS",
+    "nativeOriginalDocumentEvidence": "Same dedicated native Safari window/tab and original web area/editor; one file-named card after a single drag, absent before.",
+    "fileCardSampleCount": 9,
+    "pixelScope": "Nine opaque pixel samples over a 16-point square agreed with the original within six sRGB values per channel; full preview and remote file checksums were not measured.",
+    "directSendOrSubmitActions": 0,
+    "visibleMessagesBeforeAfter": [
+      0,
+      0
+    ],
+    "pageSendOrSubmitEventCounters": "NOT_RUN",
+    "pageInputOrChangeCounters": "NOT_RUN",
+    "serverCompletion": "NOT_OBSERVED",
+    "click": "BLOCKED_ENV",
+    "clickBlocker": "Ordinary Safari denied JavaScript from Apple Events (native error 8). Browser and system settings stayed unchanged."
+  },
+  "selection": {
+    "scope": "Real noncollapsed selection preservation",
+    "chrome": "NOT_RUN",
+    "edge": "NOT_RUN",
+    "safari": "NOT_RUN",
+    "evidence": "The initial watcher ran against an empty editor. Later QA text was nonempty and survived attachment, but setup did not establish a verified noncollapsed selection in the original editor. No stable before/after anchor, focus, direction and text comparison is available."
+  },
+  "remainingAdmission": {
+    "nonChatGPTProviders": [
+      "claude",
+      "copilot",
+      "deepseek",
+      "doubao",
+      "gemini",
+      "grok",
+      "kimi",
+      "meta",
+      "mistral",
+      "perplexity",
+      "poe",
+      "qianwen",
+      "qingyan",
+      "qwen",
+      "spark",
+      "wenxin",
+      "yuanbao",
+      "zai"
+    ],
+    "notRunPairs": 54,
+    "reason": "No dedicated authenticated editable draft with a verified attachment entry was established on any of the eighteen other providers. Login offers, changed landing routes, unresolved editor identity and anonymous pages do not authorize a file gesture. This result does not assert whether a private user account exists.",
+    "safariLandingChecksOutsideChatGPT": 18,
+    "safariLandingResults": {
+      "visibleLoginControls": 3,
+      "redirectToSignIn": 1,
+      "leftApprovedFreshLanding": 3,
+      "originalLoggedInDraftAndEntryUnconfirmed": 11
+    }
+  },
+  "publicStable": {
+    "website": "https://riftlet.com/",
+    "release": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.11",
+    "appcast": "https://riftlet.com/updates/stable.xml",
+    "version": "1.0.11",
+    "build": 67,
+    "statedScope": "Chrome and Edge, ChatGPT editable drafts",
+    "feedSHA256": "2646c7a60ba6a4de26a865d6c617716a6e26aa7b88e891ad5cc4b0b80e49f91e"
+  },
+  "decision": "Retain the current public stable release. Verified Chrome and Edge ChatGPT results and Safari native ChatGPT drop can be reported within their measured scope. A three-browser, nineteen-platform public support or release claim lacks authenticated live evidence. Source review, CI and private installation/update cannot substitute for missing site results.",
+  "evidenceSHA256": {
+    "website-matrix": "058ce681a3d806c5536cbc4c9fcf982fa46db7fcc44b48e6cf644221ded12610",
+    "chatgpt-clicks68": "f7343931f37f8ffcb41f71dff9e28a6fe279ce8b9fad5c270df9d589d588f2f3",
+    "real-signed-chatgpt68": "9925ebdc4c123b00557d09fc55e70b6de2ccf7897c590a11689135352f8e1b32",
+    "safari-signed-native-drop": "b95ad929003e9ff8f6bb8dad369136eea5aa97784b1a83544a64cd3c938796ed",
+    "browser-preflight": "a13dd89851960ccf83da36a04be380daa7a62c287d78dcaa2c4fc88c11214b14",
+    "supplementary-browser-preflight": "ca9bd9c2537e559fdb7ed3255c12802564f5194930366abbc8ae499f926a1cf6",
+    "safari-provider-landing-audit": "720c158d0ffcd1c85ebebf737078d403b5f79aaff1a9dd638bcc4c5d48d2959b",
+    "safari-native-host": "14fe9f88f2f5f6b5f07e2a8604047ad4fb4e164ecdb3f04e57df4b0180f6894e",
+    "signed-candidate": "1f1e2668d1f805c0c913764a0d74b3651b29212af105ea8946d60243c2f610c6"
+  }
+}

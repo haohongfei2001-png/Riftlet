@@ -1,0 +1,58 @@
+{
+  "scope": "Ordinary-browser windows created for the 1.1.0 QA sessions. No personal tab enumeration, private content, or broad window close was used for this reconciliation.",
+  "websitePreflight": {
+    "chrome": {
+      "providers": 19,
+      "dedicatedWindowClosed": true
+    },
+    "edge": {
+      "providers": 19,
+      "dedicatedWindowClosed": true
+    }
+  },
+  "supplementaryPreflight": {
+    "chromeClosed": true,
+    "edgeLaterAbsent": true
+  },
+  "chromiumSignedSiteTests": {
+    "chrome": {
+      "windows": 3,
+      "closed": 3,
+      "observersStopped": 3,
+      "privateAppExited": 3
+    },
+    "edge": {
+      "windows": 2,
+      "closed": 2,
+      "observersStopped": 2,
+      "privateAppExited": 2
+    }
+  },
+  "chromiumSelectionSupplement": {
+    "created": 5,
+    "closed": 5,
+    "openAtEnd": 0,
+    "maximumSimultaneous": 1,
+    "unrelatedWindowsChanged": 0,
+    "independentlyConfirmedWatcherStopForPassedEdgeCase": false,
+    "passedEdgeOriginalWindowAndQAAppExited": true
+  },
+  "safari": {
+    "realDropWindowClosed": true,
+    "providerChecksSharedOneWindow": true,
+    "providerWindowClosed": true,
+    "previouslyIdentifiedWindowAbsentFromTwoSubsequentNativeLists": true,
+    "initialUnidentifiedProbe": "The earliest local file probe did not retain the created ID. No match was established. Its continued presence or closure is unknown and no unrelated window was closed."
+  },
+  "scopeOfZero": "No identified QA target is outstanding in the cited sessions. The earliest Safari probe without a created ID is explicitly unaccounted for.",
+  "references": [
+    "browser-preflight.json",
+    "supplementary-browser-preflight.json",
+    "real-signed-chatgpt68.json",
+    "chromium-real-selected-draft.json",
+    "safari-signed-native-drop.json",
+    "safari-provider-landing-audit.json",
+    "safari-native-host.json",
+    "safari-host-window-cleanup.json"
+  ]
+}

@@ -24,11 +24,18 @@
       },
       "account": "signedIn",
       "landing": "observedLanding",
-      "reason": "Verified on the signed candidate and a dedicated authenticated normal-browser chat, including consecutive clicks, explicit selection from history, a received native file and cancellation. The supplementary noncollapsed selection was not prepared.",
+      "reason": "Verified on the signed candidate and a dedicated authenticated normal-browser chat, including consecutive clicks, explicit selection from history, a received native file and cancellation.",
       "evidence": [
         "chatgpt-clicks68.json",
-        "real-signed-chatgpt68.json"
-      ]
+        "real-signed-chatgpt68.json",
+        "chromium-real-selected-draft.json"
+      ],
+      "supplementaryNoncollapsedSelection": {
+        "status": "NOT_RUN",
+        "evidence": "chromium-real-selected-draft.json",
+        "reason": "ORIGINAL_WINDOW_NOT_FRONT_AND_VISIBLE_AFTER_BOUNDED_SETTLE",
+        "appKitClicks": 0
+      }
     },
     {
       "browser": "edge",
@@ -49,11 +56,20 @@
       },
       "account": "signedIn",
       "landing": "observedLanding",
-      "reason": "Verified on the signed candidate and a dedicated authenticated normal-browser chat, including consecutive clicks, explicit selection from history, a received native file and cancellation. The supplementary noncollapsed selection was not prepared.",
+      "reason": "Verified on the signed candidate and a dedicated authenticated normal-browser chat, including consecutive clicks, explicit selection from history, a received native file and cancellation.",
       "evidence": [
         "chatgpt-clicks68.json",
-        "real-signed-chatgpt68.json"
-      ]
+        "real-signed-chatgpt68.json",
+        "chromium-real-selected-draft.json"
+      ],
+      "supplementaryNoncollapsedSelection": {
+        "status": "PASS",
+        "evidence": "chromium-real-selected-draft.json",
+        "anchor": 40,
+        "focus": 12,
+        "direction": "backward",
+        "sameDOMNodes": true
+      }
     },
     {
       "browser": "safari",

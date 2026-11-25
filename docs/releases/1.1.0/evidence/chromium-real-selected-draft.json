@@ -1,0 +1,263 @@
+{
+  "case": "Native screenshot attachment preserves a real directed text selection in ordinary ChatGPT Temporary Chat",
+  "candidate": {
+    "version": "1.1.0",
+    "build": 68,
+    "source": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+    "machOSHA256": "0b53876713b17d28d5522dfb7c3cf73ce1caf00205936db7bdbdb2f769134231",
+    "dmgSHA256": "9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1"
+  },
+  "status": "PARTIAL",
+  "fixedUnsentDraft": "Riftlet QA: preserve this original draft while attaching images.",
+  "expectedSelectedText": "preserve this original draft",
+  "preparation": "A normal original-editor insertText command generated a single trusted text input. A separate bounded QA command used the normal DOM Selection API to set the range.",
+  "independentReadback": "An independent observer measured real Selection.toString(), Range.toString(), native direction, DOM offsets and anchor/focus object identity, before and after the one product operation.",
+  "initialAttachmentCount": 0,
+  "priorAttachmentsCase": "Already measured independently with this signed candidate; this case starts with an empty dedicated draft.",
+  "browsers": [
+    {
+      "family": "chrome",
+      "status": "NOT_RUN",
+      "reason": "NO_ELIGIBLE_EMPTY_SIGNED_IN_TEMPORARY_CHAT",
+      "completedUTC": "2026-11-25T16:43:39.557684+00:00",
+      "initialFreshLoginAdmission": "NOT_RUN",
+      "verifiedWebsiteSignals": {
+        "editor": true,
+        "signedIn": true,
+        "uploadEntry": true
+      },
+      "finalNativeAdmissionStop": "ORIGINAL_WINDOW_NOT_FRONT_AND_VISIBLE_AFTER_BOUNDED_SETTLE",
+      "ownedWindowClosed": true,
+      "appKitClickCount": 0,
+      "productLaunchedInFinalAttempt": false,
+      "nativeAdmission": {
+        "observations": 7,
+        "allSelected": true,
+        "allCandidateWindowsReportedVisible": true,
+        "allSamplesHitProtectedSurface": true,
+        "ownedProcessForegroundInAnySample": false
+      },
+      "nativeAdmissionReceiptSHA256": "6b3550cc05104e0d4056882434aa5969b2e5f6ca1ade0965479f215908303d05",
+      "privateReceiptSHA256": {
+        "preflight.json": "499308e4a5a7893e3f4223eea1e6cf57051236c773a721a75ca6796bf83a9d20"
+      }
+    },
+    {
+      "family": "edge",
+      "status": "PASS",
+      "ownedWindowClosed": true,
+      "isolatedSignedAppExited": true,
+      "pngSHA256": "3fed04522a5794bde56dbdda6139754ab1de4ae79cd4558525d8476ec027d7a0",
+      "appKitClickCount": 1,
+      "operationIDHash": "0d098f6634a69dc70be78e54b157127381e2bfc657270ac216d2e5941c120736",
+      "operationOriginalDocumentDigest": "e91e44326a82967662b224450529cc2f4570bb7c7acf6c0c4aa7b7ed64026a00",
+      "operationOriginalComposerDigest": "51067c4eb1ddda77db51bc7a89bb75eb6ef398e803b5b9ce4b6f8084d0c8ad5c",
+      "operationDraftEpochDigest": "bcee8c04e7349a6891faf3476aeaa3c232e16475e69c00ea8a07add6aedb0da0",
+      "completedUTC": "2026-11-25T16:43:20.653639+00:00",
+      "initialFreshLoginAdmission": "ELIGIBLE",
+      "before": {
+        "fullQAStringVerified": true,
+        "actualRange": {
+          "anchor": 40,
+          "anchorDOMOffset": 40,
+          "direction": "backward",
+          "end": 40,
+          "focus": 12,
+          "focusDOMOffset": 12,
+          "nativeDirection": "backward",
+          "selectedText": "preserve this original draft",
+          "start": 12
+        },
+        "attachmentCards": 0,
+        "counts": {
+          "fileChange": 0,
+          "fileInput": 0,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "verifiedOriginalEditor": true,
+        "verifiedOriginalDocument": true
+      },
+      "after": {
+        "fullQAStringVerified": true,
+        "actualRange": {
+          "anchor": 40,
+          "anchorDOMOffset": 40,
+          "direction": "backward",
+          "end": 40,
+          "focus": 12,
+          "focusDOMOffset": 12,
+          "nativeDirection": "backward",
+          "selectedText": "preserve this original draft",
+          "start": 12
+        },
+        "attachmentCards": 1,
+        "counts": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "verifiedOriginalEditor": true,
+        "verifiedOriginalDocument": true,
+        "sameAnchorAndFocusObjects": true,
+        "sameDOMOffsets": true
+      },
+      "unchangedNavigationEntry": true,
+      "pageProductRegistryComparisons": {
+        "documentID": "NOT_EXPOSED",
+        "composerID": "NOT_EXPOSED",
+        "draftEpoch": "NOT_EXPOSED"
+      },
+      "websiteCardPixelMatchedOriginal": true,
+      "uniqueDurableSTART": true,
+      "privateReceiptSHA256": {
+        "preflight.json": "79d46d28270e346b6a255d36299bcce596fec3884d104b59ec21989bad0ed874",
+        "result.json": "faa10bdf145b4d4498590851450270958277ed9ddde0ac41640a5ef012665c29",
+        "new-range/typed.json": "8760a8db9ba568d6f336541cb4d560f5b05f23375311ebd05e41c1f5e6072584",
+        "new-range/selection-before.json": "fe5c93aba57fd63750e32bd472c2d7d5c5d0d72b937d3a362153fe29f991435c",
+        "new-range/selection-after.json": "6547c86a6d72c017428cc12fe03691dd3b628f4bfd35b19de06c4670e2210b37",
+        "selection-only-click.json": "eb0a3a2195dbc1580e319d34f0b4a6f675f7e8a311694c43db38b23f268c011a",
+        "selection-only-web.json": "28b914829767e5d6fd8d31fa7e1b5b114c10f27e9b1e281aab8d47eac10dd007",
+        "selection-only-result.json": "fa9165ee983946ab800545836b6c036b8ffdd719afafba3b262e7d6b7a1df4d3"
+      }
+    }
+  ],
+  "cleanup": {
+    "dedicatedTargetsCreated": 5,
+    "dedicatedTargetsClosed": 5,
+    "currentlyOpen": 0,
+    "maximumSimultaneouslyOwnedWindows": 1,
+    "serialIntervalsVerified": true,
+    "explicitPerWindowCloseReceipts": [
+      {
+        "browser": "chrome",
+        "nativeScopeDigest": "c94ab9f871ce719b58fbce67edc25f1dec1701eec43e877d6ae909e02253df0e",
+        "started": "2026-11-25T15:07:31.857747+00:00",
+        "finished": "2026-11-25T15:08:03.098121+00:00",
+        "uniqueNewWindowAndSoleTabVerified": true,
+        "closeRequests": 1,
+        "exactWindowClosed": true,
+        "originalSystemScreenshotsGenerated": 1,
+        "actualAppKitClicks": 0,
+        "outcome": "NOT_RUN",
+        "receiptSHA256": {
+          "creation.json": "93127e6d46b1bd9e77cc7338bc520d7166702de335663af40a5b9b448402db7d",
+          "closed.json": "77f15ae43016d43c32373a66bf6494b829ebe3088b60b16dca7ecc8065584ead",
+          "preflight.json": "417565006f7f6bcead6ac6b9daddcc9ee7081067927a25328f3e5a52f7aa3b6d"
+        },
+        "QAAppExited": true,
+        "lastOriginalPageEventCounts": {
+          "fileChange": 0,
+          "fileInput": 0,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "watcherStopIndependentlyAcknowledged": true
+      },
+      {
+        "browser": "edge",
+        "nativeScopeDigest": "aba62f3519e0c8a9da05edc11e2f676db7290ed1e81a4346bb61d1226632b2c8",
+        "started": "2026-11-25T16:40:09.866410+00:00",
+        "finished": "2026-11-25T16:40:22.208913+00:00",
+        "uniqueNewWindowAndSoleTabVerified": true,
+        "closeRequests": 1,
+        "exactWindowClosed": true,
+        "originalSystemScreenshotsGenerated": 0,
+        "actualAppKitClicks": 0,
+        "outcome": "NOT_RUN",
+        "receiptSHA256": {
+          "creation.json": "15195ed2b332ff59e9a8ff61cbe8be2c6ea32e6ba123fe17cc66fc27fdf1d37d",
+          "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+          "preflight.json": "8ceff3dba152f9c64aeaf1d5ceb08f96a8fdb282b38e00c2582b0931f934ee06"
+        },
+        "preflightOnly": true,
+        "signedProductLaunched": false,
+        "fileInputsIssuedByPreflight": 0
+      },
+      {
+        "browser": "chrome",
+        "nativeScopeDigest": "e6c7916a37555e62ba648f8fa16df5e2576cdf4981f880f64f66b63b009b6182",
+        "started": "2026-11-25T16:41:49.363724+00:00",
+        "finished": "2026-11-25T16:42:08.191545+00:00",
+        "uniqueNewWindowAndSoleTabVerified": true,
+        "closeRequests": 1,
+        "exactWindowClosed": true,
+        "originalSystemScreenshotsGenerated": 0,
+        "actualAppKitClicks": 0,
+        "outcome": "NOT_RUN",
+        "receiptSHA256": {
+          "creation.json": "530f211710e2b61a2ac64ad4e4c8751e78d079552485ad6a44c8dadcf598d6d1",
+          "closed.json": "77f15ae43016d43c32373a66bf6494b829ebe3088b60b16dca7ecc8065584ead",
+          "preflight.json": "417565006f7f6bcead6ac6b9daddcc9ee7081067927a25328f3e5a52f7aa3b6d"
+        },
+        "QAAppExited": true,
+        "lastOriginalPageEventCounts": {
+          "fileChange": 0,
+          "fileInput": 0,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "watcherStopIndependentlyAcknowledged": true
+      },
+      {
+        "browser": "edge",
+        "nativeScopeDigest": "d0a73841df922ff3b329c1b3e4c13b97bd1319111386e5025f9a3da5823e93ff",
+        "started": "2026-11-25T16:42:48.969924+00:00",
+        "finished": "2026-11-25T16:43:20.653639+00:00",
+        "uniqueNewWindowAndSoleTabVerified": true,
+        "closeRequests": 1,
+        "exactWindowClosed": true,
+        "originalSystemScreenshotsGenerated": 1,
+        "actualAppKitClicks": 1,
+        "outcome": "PASS",
+        "receiptSHA256": {
+          "creation.json": "1a8525bdfd83bcee09d9f4fe92ee77819a360bb2d697e5cda70993cf40a9fcaf",
+          "closed.json": "e148ee30b300dcf304cd7e68b337f09025d911a0f3f13fde9285d63fb5857d77",
+          "preflight.json": "79d46d28270e346b6a255d36299bcce596fec3884d104b59ec21989bad0ed874"
+        },
+        "QAAppExited": true,
+        "lastOriginalPageEventCounts": {
+          "fileChange": 1,
+          "fileInput": 1,
+          "formSubmit": 0,
+          "sendButtonClicks": 0
+        },
+        "watcherStopIndependentlyAcknowledged": false,
+        "observerCleanupScope": "The original native window exit was verified. Independent confirmation that the page event watcher stopped before exit was unavailable."
+      },
+      {
+        "browser": "chrome",
+        "nativeScopeDigest": "c4297c0365742e460258859517d9916d7437de182f0ee3d8a62842bb3d2b020e",
+        "started": "2026-11-25T16:43:20.680746+00:00",
+        "finished": "2026-11-25T16:43:39.557684+00:00",
+        "uniqueNewWindowAndSoleTabVerified": true,
+        "closeRequests": 1,
+        "exactWindowClosed": true,
+        "originalSystemScreenshotsGenerated": 0,
+        "actualAppKitClicks": 0,
+        "outcome": "NOT_RUN",
+        "receiptSHA256": {
+          "creation.json": "78baf1d76b3ebad2d4e08cc716554023e319b0e570696ed5d410efa86020d53d",
+          "closed.json": "77f15ae43016d43c32373a66bf6494b829ebe3088b60b16dca7ecc8065584ead",
+          "preflight.json": "499308e4a5a7893e3f4223eea1e6cf57051236c773a721a75ca6796bf83a9d20"
+        },
+        "preflightOnly": true,
+        "signedProductLaunched": false,
+        "fileInputsIssuedByPreflight": 0
+      }
+    ],
+    "unrelatedWindowsTouched": 0
+  },
+  "chromeSupplementCounts": {
+    "scope": "These three selection-only Chrome sessions, distinct from previous ordinary A/B acceptance.",
+    "scopedProductMouseDowns": 0,
+    "twoLaunchedPrivateSessionsFinalObservedEventCounts": {
+      "fileInput": 0,
+      "fileChange": 0,
+      "sendButtonClicks": 0,
+      "formSubmit": 0
+    },
+    "lastAdmissionOnly": "No signed product launch or issued file input. Window closed when foreground admission failed."
+  }
+}

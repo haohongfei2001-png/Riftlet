@@ -1,0 +1,15 @@
+{
+  "scope": "Previously identified Safari host probe window after an acknowledged close",
+  "nativeWindowID": 107207,
+  "sameKernelProcessBirth": true,
+  "sameSignedSafariPID": true,
+  "closeAcknowledged": true,
+  "laterNativeBeforeListContainsExactWindow": false,
+  "laterNativeAfterListContainsExactWindow": false,
+  "laterReceiptUTC": "2026-11-25T14:56:07.459879+00:00",
+  "earliestProbeWithoutCreatedWindowID": "UNATTRIBUTED; preserved",
+  "privateReceiptSHA256": {
+    "originalClose": "930bb55c384a0bf1787eec43a4c5c7ef8165ce4067d3688544b43a14ed318ac8",
+    "laterNativeLists": "7ad0e0fbe61f84318c2f5efa39580a3caa6f01404a368d7b2a77c4018faede4b"
+  }
+}
