@@ -75,8 +75,9 @@ final class PublicUpgradeUI: XCTestCase {
         direct.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).click()
         try record("user-check")
         if qaMode == "preflight" {
-            let status = find(app.descendants(matching: .any),
-                              ".*(up.to.date|newest version|latest version|最新版|最新版本).*")
+            let sheet = app.dialogs.containing(.button, identifier: "action-button-1").firstMatch
+            let status = sheet.staticTexts.matching(NSPredicate(format:
+                "value MATCHES[c] %@", ".*(up.to.date|newest version|latest version|最新版).*")).firstMatch
             XCTAssertTrue(status.waitForExistence(timeout: 50), app.debugDescription)
             try record("up-to-date")
             return
