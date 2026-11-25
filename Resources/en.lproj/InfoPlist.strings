@@ -5,7 +5,7 @@
 	<key>NSScreenCaptureUsageDescription</key>
 	<string>When you take a screenshot with Riftlet, it captures the window, area, or screen you choose and saves the image on this Mac.</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Allow Riftlet to check its connection to Chrome or Microsoft Edge and attach a screenshot to your current ChatGPT draft when you click its thumbnail. You send the message yourself.</string>
+	<string>Allow Riftlet to attach a screenshot to your current conversation draft in Chrome, Edge or Safari when you click its thumbnail. You decide when to send.</string>
 	<key>NSDesktopFolderUsageDescription</key>
 	<string>Allow Riftlet to read new screenshots saved in your Desktop folder and show their thumbnails at the edge of your desktop. Your original files are kept.</string>
 	<key>NSDocumentsFolderUsageDescription</key>
