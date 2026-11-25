@@ -73,9 +73,13 @@ struct RiftTimelineSnapshot {
         }
         byID = byID.filter { $0.value.status != .missing }
         self.byID = byID
-        records = byID.values.sorted { $0.sequence > $1.sequence }
+        let pageStart = page.map(\.sequence).min()
+        // An active card can be far older than the loaded page. It remains
+        // visible at the latest end but cannot stand in for the unloaded gap.
+        records = byID.values.filter { !hasOlder || $0.sequence >= (pageStart ?? .max) }
+            .sorted { $0.sequence > $1.sequence }
         ranks = Dictionary(uniqueKeysWithValues: records.enumerated().map { ($0.element.id, $0.offset) })
-        oldestPageSequence = page.map(\.sequence).min()
+        oldestPageSequence = pageStart
         self.hasOlder = hasOlder
     }
 }
@@ -160,12 +164,20 @@ struct RiftTimelineViewport {
                     let boundedY = min(clip.maxY + pitch, max(clip.minY - pitch, y))
                     origin.x = initial.frame.minX + (x - initial.frame.minX) * progress
                     origin.y = initial.frame.minY + (boundedY - initial.frame.minY) * progress
+                        - offset * (1 - progress)
                 } else {
                     origin.y += max(0, clip.maxY + 4 - y) * (1 - progress)
                 }
             }
             row = row.positioned(at: origin, ordinal: Int(clamping: record.sequence))
             if row.frame.intersects(visible) { rows.append(row) }
+        }
+        if progress < 1 {
+            for row in latest.rows where snapshot.ranks[row.assetID] == nil {
+                let origin = CGPoint(x: row.frame.minX, y: row.frame.minY - progress * (row.frame.maxY - visible.minY + 4))
+                let outgoing = row.positioned(at: origin, ordinal: row.ordinal)
+                if outgoing.frame.intersects(visible) { rows.append(outgoing) }
+            }
         }
         let clippedLine = latest.lineFrame.intersection(visible)
         var layout = RiftLayoutResult(rows: rows, lineFrame: clippedLine.isNull ? .zero : clippedLine,

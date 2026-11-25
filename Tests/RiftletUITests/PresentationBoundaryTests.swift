@@ -294,6 +294,14 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(selected, [a.id])
     }
 
+    func testOldActiveCardDoesNotPretendUnloadedHistoryIsAdjacent() {
+        let old = record(1), current = record(50), earlier = record(49, visibility: .archived, reason: .automaticArchive)
+        let state = RiftTimelineSnapshot(active: [old, current], page: [current, earlier], hasOlder: true)
+        XCTAssertEqual(state.records.map(\.sequence), [50, 49])
+        XCTAssertEqual(state.oldestPageSequence, 49)
+        XCTAssertEqual(state.byID[old.id], old)
+    }
+
     @MainActor func testNativeScrollingKeepsCaptureOrderAndPagesPastTwentyWithoutSelecting() throws {
         func wheel(_ points: Int32, in panel: RiftPanelController) throws {
             let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: .pixel, wheelCount: 1,

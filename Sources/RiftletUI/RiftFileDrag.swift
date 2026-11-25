@@ -12,7 +12,7 @@ final class RiftFileDrag: NSObject, NSDraggingSource {
 
     static func file(for record: AssetRecord, in directory: URL) throws -> URL {
         let url = directory.appendingPathComponent(record.image.fileName)
-        let (_, identity) = try HistoryPreviewDecode.verifiedBytes(asset: record.image, directory: directory)
+        let (_, identity) = try HistoryPreviewDecode.verifiedBytes(asset: record.image, directory: directory, retainingBytes: false)
         guard identity.matches(url) else { throw HistoryPreviewFailure.fileChanged }
         return url
     }

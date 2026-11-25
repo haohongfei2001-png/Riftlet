@@ -2183,7 +2183,7 @@ public final class RiftPanelController {
     private func scroll(_ event: NSEvent) {
         guard !forwardingWheel, !userHidden, !closed, !captureSuppressed, !gate.isHolding,
               activeFileDrag == nil else { return }
-        guard timeline != nil else { return }
+        if timeline == nil { render(lastRecords, timeline: lastRecords, hasOlder: false) }
         if trayExpanded { setTrayExpanded(false) }
         finishQueueTransition(allowShift: false)
         forwardingWheel = true
