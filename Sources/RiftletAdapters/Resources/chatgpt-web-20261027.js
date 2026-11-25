@@ -216,16 +216,18 @@ function riftletWebAcceptance(command, native) {
   }
 
   // RIFTLET_ORIGINAL_RECEIVER_BEGIN
-  function bindOriginalReceiver(node, permits, trackDraftFocus = false, acceptsAuxiliaryFocus = () => false) {
+  function bindOriginalReceiver(node, permits, trackDraftFocus = false, acceptsAuxiliaryFocus = () => false, optionalWatch) {
     const root = document.documentElement, owner = node.ownerDocument;
     const parent = item => item.parentNode || (item.nodeType === 11 ? item.host : null) || null;
     const lineage = [];
     for (let item = node; item; item = parent(item)) lineage.push(item);
     const originals = new Set(lineage);
     const entry = globalThis.navigation?.currentEntry?.id;
-    const moved = records => records.some(record =>
-      Array.from(record.removedNodes).some(item => originals.has(item)) ||
-      Array.from(record.addedNodes).some(item => originals.has(item)));
+    const moved = records => {
+      optionalWatch?.inspect(records);
+      return records.some(record => Array.from(record.removedNodes).some(item => originals.has(item)) ||
+        Array.from(record.addedNodes).some(item => originals.has(item)));
+    };
     let live = true;
     const observer = new MutationObserver(records => { if (moved(records)) close(); });
     // Shadow roots have their own mutation trees. Observe a detached picker
@@ -234,6 +236,7 @@ function riftletWebAcceptance(command, native) {
     for (const item of lineage) if (item.nodeType === 11) roots.add(item);
     if (!node.isConnected) roots.add(lineage[lineage.length - 1]);
     for (const tree of roots) observer.observe(tree, {childList: true, subtree: true});
+    if (optionalWatch) observer.observe(optionalWatch.field, {attributes: true, attributeFilter: ['form']});
     function visibilityChanged() { if (document.visibilityState !== 'visible') close(); }
     function focusChanged(event) {
       const next = event.composedPath?.()[0] || event.target;
@@ -561,14 +564,43 @@ function riftletWebAcceptance(command, native) {
     registry.witnessGeneration = generation;
     return generation;
   }
+  function ordinaryFormField(binding, entries) {
+    const fields = [...binding.form.querySelectorAll('input[type="file"]')].filter(input =>
+      input.form === binding.form && !input.hasAttribute('form') && !input.webkitdirectory && !input.hasAttribute('capture') && !blocked(input)
+      && (!input.accept.trim() || input.accept.trim() === '*/*') && /\b(?:files?|attachments?|uploads?)\b|文件|上传|附件/i.test(description(input))
+      && !nonFileAction.test(description(input)) && !cloudFileWords.test(description(input))
+      && !otherOwner(input, binding, control => entries.includes(control)));
+    return fields.length === 1 ? fields[0] : null;
+  }
+  function watchDisabledField(field) {
+    if (!field?.disabled) return;
+    const path = new Set();
+    for (let node = field; node; node = node.parentNode) path.add(node);
+    return {field, inspect(records) {
+      if (this.field && records.some(record => (record.type === 'attributes' && record.target === this.field) ||
+          Array.from(record.removedNodes).some(node => path.has(node)))) {
+        this.field = null; path.clear();
+      }
+    }};
+  }
   function prepareAttachment(binding, generation) {
     const entries = entryControls(binding), field = directInput(binding, entries);
     const opener = !field && entries.length === 1 ? entries[0] : null;
     const original = field || opener, owner = field?.form;
     if (!original) fail('ATTACHMENT_INPUT_UNAVAILABLE');
+    // Keep the opener as the primary route. Only its original form's unique
+    // ordinary file field can become a direct route after being enabled.
+    const watch = opener && binding.form.tagName === 'FORM' ? watchDisabledField(ordinaryFormField(binding, entries)) : undefined;
     const receiver = bindOriginalReceiver(original, () => original.isConnected &&
-      (!field || (usableInput(field) && field.form === owner && directInput(binding, entryControls(binding)) === field)));
-    return {field, opener, current: () => generation.writable() && receiver.current(), close: receiver.close};
+      (!field || (usableInput(field) && field.form === owner && directInput(binding, entryControls(binding)) === field)),
+      false, undefined, watch);
+    const acceptsEnabledField = input => {
+      if (!watch?.field || !receiver.current() || input !== watch.field) return false;
+      const current = entryControls(binding);
+      return current.length === 1 && current[0] === opener && ordinaryFormField(binding, current) === input
+        && directInput(binding, current) === input;
+    };
+    return {field, opener, acceptsEnabledField, current: () => generation.writable() && receiver.current(), close: receiver.close};
   }
   function preserveSelection(binding) {
     if (binding.editor.tagName === 'TEXTAREA') {
@@ -2299,7 +2331,7 @@ function riftletWebAcceptance(command, native) {
   }
   // Only an application's actual click/showPicker may supply a detached
   // object. Deliver to that same object, including its own event handlers.
-  const execute = (input, invoked = false) => {
+  const execute = (input, invoked = false, confirmField) => {
     if (!validDraft(op.binding)) return retire('targetInvalidBeforeInput', 'handoff', 'targetChanged');
     diag.inputSeen = true; diag.inputConnected = input.isConnected;
     if (!usableInput(input) || (!invoked && !input.isConnected))
@@ -2322,10 +2354,10 @@ function riftletWebAcceptance(command, native) {
       const originalForm = input.form;
       receiver = bindOriginalReceiver(input, () => validDraft(op.binding) && usableInput(input) &&
         input.form === originalForm && (invoked || input.isConnected));
-      let recoveryRefused = false;
+      let handoffRefused = false;
       const writeFiles = receiver.once(function(files) {
-        if (op.recoverySource && !permitsRecovery(op.recoverySource, op.binding, true)) {
-          recoveryRefused = true; return;
+        if ((op.recoverySource && !permitsRecovery(op.recoverySource, op.binding, true)) || (confirmField && !confirmField(input))) {
+          handoffRefused = true; return;
         }
         op.inputCount = 1; op.inputSequence = tick(); op.inputTime = performance.now();
         op.blobSerialBeforeInput = registry.blobSerial ?? 0;
@@ -2334,7 +2366,7 @@ function riftletWebAcceptance(command, native) {
         Reflect.apply(setter, this, [files]);
       });
       const notifyInput = receiver.once(input.dispatchEvent), notifyChange = receiver.once(input.dispatchEvent);
-      if (!writeFiles(transfer.files) || recoveryRefused) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
+      if (!writeFiles(transfer.files) || handoffRefused) return retire('targetInvalidBeforeInput', 'setter', 'targetChanged');
       diag.stage = 'change';
       if (notifyInput(new Event('input', {bubbles: true, composed: true})) &&
           notifyChange(new Event('change', {bubbles: true}))) {
@@ -2364,9 +2396,10 @@ function riftletWebAcceptance(command, native) {
     const input = directInput(op.binding, entries);
     if (prepared?.field && input !== prepared.field)
       return retire('targetInvalidBeforeInput', 'prepare', 'targetChanged');
-    if (input && (!prepared || input === prepared.field)) {
+    const enabledField = input && prepared?.acceptsEnabledField?.(input);
+    if (input && (!prepared || input === prepared.field || enabledField)) {
       const restore = preserveSelection(op.binding);
-      try { diag.stage = 'direct'; return execute(input); }
+      try { diag.stage = 'direct'; return execute(input, false, enabledField ? prepared.acceptsEnabledField : undefined); }
       finally { restore(); }
     }
     diag.stage = 'entry'; op.executionPending = true;

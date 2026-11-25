@@ -3,7 +3,7 @@
   "stableRelease": "v1.0.10",
   "stableBuild": 65,
   "stableProductSource": "3f7d87ee242463cfc90bf5d600c8ee1d262de69d",
-  "mainAtChannelCheck": "933a6f32c90908f034137ee32ff05273b615913b",
+  "mainAtChannelCheck": "28d1df45945b425c1961c8a0c0cf9aea340c17bd",
   "main": "https://github.com/haohongfei2001-png/Riftlet/tree/main",
   "publicRelease": "https://github.com/haohongfei2001-png/Riftlet/releases/latest",
   "website": "https://riftlet.com/",
@@ -20,14 +20,23 @@
   },
   "currentWork": {
     "version": "1.0.11",
-    "build": 66,
+    "build": 67,
     "phase": "candidate",
-    "fix": "Restore a completed no-target selection from the full library after it leaves recent history.",
+    "fix": "Full-library restore after a completed unattempted click, plus attaching through the original form field when it becomes enabled.",
     "reproduction": "Confirmed on the 1.0.10 mainline in an isolated SQLite library after 20 newer selections.",
     "reviewDiscussion": "https://github.com/haohongfei2001-png/Riftlet/pull/132#discussion_r4681988609",
     "engineeringEntryIssue": "https://github.com/haohongfei2001-png/Riftlet/issues/91",
-    "runtimeAcceptance": "Pending signed candidate checks on Chrome and Edge.",
-    "nextAction": "Obtain independent source review, formal CI, candidate-specific website, install and updater results."
+    "runtimeAcceptance": "Build 66 results are recorded separately. Build 67 requires signed-candidate Chrome and Edge verification.",
+    "nextAction": "Review and test the build 67 candidate, its signed package and the public update from build 65.",
+    "engineeringEntryIssueStatus": "closed",
+    "report": "docs/releases/1.0.11/VERIFICATION.md",
+    "installation": "Build 66 was independently installed. Build 67 has separate installation and update verification.",
+    "previousCandidate": {
+      "build": 66,
+      "productSource": "6c0af660a8738c673b85155c3169441c524511d7",
+      "productPR": 134,
+      "acceptance": "PARTIAL: both browsers passed single, pair and explicit reattachment; both also had a pre-input recovery failure."
+    }
   },
   "historicalStatus": "https://github.com/haohongfei2001-png/Riftlet/blob/933a6f32c90908f034137ee32ff05273b615913b/docs/quality/ITERATION_STATUS.json"
 }
