@@ -1,6 +1,6 @@
 # Riftlet 质量入口
 
-从实际 main、最新公开 Release、官网下载和稳定更新源核对在用版本。1.0.11 工作起点为 1.0.10（65），产品由 PR #132 整合，公开下载和稳定更新由 #133 整合。[当前版本、工作及验收状态](ITERATION_STATUS.json) · [最新 Release](https://github.com/haohongfei2001-png/Riftlet/releases/latest)
+从实际 main、最新公开 Release、官网下载和稳定更新源核对在用版本。[当前版本、工作及验收状态](ITERATION_STATUS.json) · [最新 Release](https://github.com/haohongfei2001-png/Riftlet/releases/latest)
 
 | 需要核对的内容 | 当前入口 |
 |---|---|

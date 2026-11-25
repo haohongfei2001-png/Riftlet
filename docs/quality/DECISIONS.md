@@ -1,6 +1,6 @@
 # 当前质量设计裁决
 
-1.0.10（65）确立点选后进入最近历史的交互。D15 是在此正式基线上提出的 1.0.11 修复，其发行进度见[当前状态](ITERATION_STATUS.json)。历史决策及其证据保留当时的版本。[修订前全文](https://github.com/haohongfei2001-png/Riftlet/blob/933a6f32c90908f034137ee32ff05273b615913b/docs/quality/DECISIONS.md)
+1.0.10（65）确立点选后进入最近历史的交互。D15 规定点图时没有草稿的恢复条件，发行及验收记录见[当前状态](ITERATION_STATUS.json)。历史决策及其证据保留当时的版本。[修订前全文](https://github.com/haohongfei2001-png/Riftlet/blob/933a6f32c90908f034137ee32ff05273b615913b/docs/quality/DECISIONS.md)
 
 | ID | 裁决 | 依据与实施边界 |
 |---|---|---|

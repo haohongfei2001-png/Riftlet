@@ -4,25 +4,25 @@ IMPORTANT: This file was signed by Sparkle. Any modifications to this file requi
     <channel>
         <title>Riftlet</title>
         <item>
-            <title>1.0.10</title>
-            <pubDate>Wed, 25 Nov 2026 01:02:38 +0800</pubDate>
+            <title>1.0.11</title>
+            <pubDate>Wed, 25 Nov 2026 18:00:33 +0800</pubDate>
             <link>https://riftlet.com/</link>
-            <sparkle:version>65</sparkle:version>
-            <sparkle:shortVersionString>1.0.10</sparkle:shortVersionString>
+            <sparkle:version>67</sparkle:version>
+            <sparkle:shortVersionString>1.0.11</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
-            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.10
+            <description sparkle:format="plain-text"><![CDATA[# Riftlet 1.0.11
 
-点击截图发起附加后，它会从当前托盘移入最近截图。无论草稿接收图片、附加失败或结果暂时无法确认，都可以在历史中找回这张图。
+如果点击截图时没有可用的 ChatGPT 草稿，后来这张图又被挤出最近 20 张，现在可以在完整截图仓库找到它，点击「恢复到托盘」。准备好草稿后，再点一次缩略图即可附加原图。
 
-在托盘上向上滑动查看最近截图，向下滑动返回当前托盘。需要再附加时，先查看当前草稿里已有的附件，再点击历史中的截图。Riftlet 仅在你选择图片时发起附加，消息仍由你发送。
+刚打开 ChatGPT 时，上传控件可能稍后才就绪。现在点选截图时，Riftlet 可以使用刚刚启用的原文件控件。
 
-Click a screenshot to attach it and move it from the active tray into recent history. It stays in history whether the draft accepts it, the attachment fails, or the outcome is uncertain.
+If you clicked a screenshot when no ChatGPT draft was available and it has since left your 20 recent screenshots, you can now find it in the full library and choose Restore to Tray. When your draft is ready, click the thumbnail to attach the original image.
 
-Scroll up over the tray for recent screenshots, and scroll down to return to the active tray. To attach an image again, check the attachments already in your draft and click the image in history. Sending the message stays in your hands.]]></description>
-            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.10/Riftlet-1.0.10.dmg" length="13939797" type="application/octet-stream" sparkle:edSignature="c9q/1AP0ViKekloKzZEP00OxBirZ7uzRfQcVTz2tfclUSCShZpXUMYVKNqllP8LlcdnS/3SXYuMgeoG7h1E8Aw=="></enclosure>
+On a newly opened ChatGPT draft, the upload field can take a moment to become available. Clicking a screenshot can now use that original field as soon as it is ready.]]></description>
+            <enclosure url="https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.11/Riftlet-1.0.11.dmg" length="13945478" type="application/octet-stream" sparkle:edSignature="F0bFgYtBPXHXHK7+ZZ2u5PEJ4c3ooZypqh4KrUoyPuykDnkuWUx0KnKNwiMEifcL516W1/PyUvR+68EHR7nXDA=="></enclosure>
         </item>
     </channel>
 </rss><!-- sparkle-signatures:
-edSignature: QhAMFwpGTS8R9eFfwyx7L5FCnxtLLWxWlskjYhxPyiuREp3XYlboL6UTULB4IG5QQ/J8g55XI+2bqTkRzFYABg==
-length: 2048
+edSignature: 7VRmFjAqRxbJFOO0+7n7kZaMZax56De+vOTZrY/qiG/HFL9+7EHgPUjCwzzi69OpTB4OEyOTK/AbBNNvtzmjBg==
+length: 1999
 -->
