@@ -54,5 +54,10 @@
     "safari-provider-landing-audit.json",
     "safari-native-host.json",
     "safari-host-window-cleanup.json"
-  ]
+  ],
+  "postTestProcessCheck": {
+    "checkedAtUTC": "2026-11-25T17:18:12+00:00",
+    "method": "Read-only native process executable-name match against this build’s isolated Chromium, Safari, selection, independent installation and candidate App directories. Process arguments and window titles were not collected.",
+    "knownQAExecutablesRunning": 0
+  }
 }

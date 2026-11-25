@@ -1,0 +1,93 @@
+{
+  "verifiedAtUTC": "2026-11-25T17:36:21+00:00",
+  "version": "1.1.0",
+  "build": 68,
+  "pr": "https://github.com/haohongfei2001-png/Riftlet/pull/137",
+  "draft": true,
+  "base": "2b270aec5cf57d2b4165acd52bcc730fa1052a02",
+  "signedProductSource": "be4c20d5036d7bbad78f283633d66c5779a13df5",
+  "signedProductTree": "c3a55e1c7a9420fb4990e91e39c9bfcd2ae7929c",
+  "signedPackageManifestSHA256": "82eee372af3efc83d52b7716e51e500e3b1b1619cd89f797febbab92b3e96de4",
+  "reviewedTestCheckpoint": "cd4195ada9ea5bfb8fd533e1350fe3dd8c8aa1dd",
+  "reviewedTree": "58fe7e2caab255ca2959f002b8f845e701de3a65",
+  "nonAuthorReportSHA256": "98aa01330a1c23328195414091dcd85c029ba1ffe3ee175a0df8a06b25fbf0bf",
+  "admissionHead": "26f75a385373bd81739fe370e40611b39cb4b872",
+  "mergeCommit": "626d01e2bd51241a3ad4e857d68e9a0458425966",
+  "mergeTree": "959fa06dda71b4bd4fca9cebf2f6dd5c7c37e1ee",
+  "orderedMergeParents": [
+    "2b270aec5cf57d2b4165acd52bcc730fa1052a02",
+    "26f75a385373bd81739fe370e40611b39cb4b872"
+  ],
+  "fiveChecks": {
+    "Feedback native and service": {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45662580501/job/139376065466",
+      "startedAt": "2026-11-25T17:14:14Z",
+      "completedAt": "2026-11-25T17:23:27Z"
+    },
+    "Feedback source admission": {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45662580501/job/139376064844",
+      "startedAt": "2026-11-25T17:14:13Z",
+      "completedAt": "2026-11-25T17:14:32Z"
+    },
+    "Native ARM64": {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45662580561/job/139376064578",
+      "startedAt": "2026-11-25T17:14:16Z",
+      "completedAt": "2026-11-25T17:32:01Z"
+    },
+    "Native Intel": {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45662580561/job/139376064217",
+      "startedAt": "2026-11-25T17:14:14Z",
+      "completedAt": "2026-11-25T17:36:06Z"
+    },
+    "Native source admission": {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45662580561/job/139376064627",
+      "startedAt": "2026-11-25T17:14:13Z",
+      "completedAt": "2026-11-25T17:14:56Z"
+    }
+  },
+  "formalOutcome": "PASS",
+  "productPathsIdentical": [
+    "Sources",
+    "Resources",
+    "Package.swift",
+    "Package.resolved",
+    "ThirdPartyNotices",
+    "packaging",
+    "scripts"
+  ],
+  "changedSincePackagedSource": [
+    "Tests/RiftletAdaptersTests/ArchivedObservationCompatibilityTests.swift",
+    "Tests/RiftletUITests/PresentationBoundaryTests.swift",
+    "Tests/RiftletUITests/RiftTrayLayoutTests.swift",
+    "Tests/RiftletUITests/TimelineWheelFixture.swift",
+    "engineering/mainline/source-admission.json"
+  ],
+  "candidateProvenance": "The packaged source archive includes Tests. The test checkpoint has different archived test content. No product repackage was used to claim identical source archives.",
+  "priorMacOS15TestFailure": {
+    "head": "180662209e19c610ace29b47989bd41e947e85d7",
+    "run": "https://github.com/haohongfei2001-png/Riftlet/actions/runs/45656602811",
+    "evidence": "timeline-macos15-pagination.json"
+  },
+  "websiteMatrixCounts": {
+    "PASS": 2,
+    "PARTIAL": 1,
+    "NOT_RUN": 54
+  },
+  "publicReleaseApproved": false,
+  "websiteAcceptance": "See website-matrix.json and the independent website review.",
+  "publicStable": {
+    "website": "https://riftlet.com/",
+    "release": "https://github.com/haohongfei2001-png/Riftlet/releases/tag/v1.0.11",
+    "version": "1.0.11",
+    "build": 67,
+    "websiteLinksToFeedEnclosure": true,
+    "appcast": "https://riftlet.com/updates/stable.xml",
+    "enclosure": "https://github.com/haohongfei2001-png/Riftlet/releases/download/v1.0.11/Riftlet-1.0.11.dmg",
+    "appcastSHA256": "2646c7a60ba6a4de26a865d6c617716a6e26aa7b88e891ad5cc4b0b80e49f91e"
+  }
+}
