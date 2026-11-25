@@ -1,0 +1,370 @@
+{
+  "scope": "Headless ordinary Google Chrome with a new guest context per origin. No credentials, screenshot uploads, file selections, native AppKit actions or messages were used.",
+  "program": {
+    "commit": "4245bf9a48658364272e1b1ddbabd5cc9fc1ea8b",
+    "file": "Sources/RiftletAdapters/Resources/conversation-providers.js",
+    "sha256": "e52fa8bda0960656ead921d762cec8d28d5708fc40548f06ff6c00976625d5e5"
+  },
+  "routeCatalogSHA256": "188966856cb31f33d1bd34c2f6baa05e052d1ec6fd96a3a03e8073ff63315995",
+  "formalSignedInAcceptance": "NOT_RUN",
+  "rows": [
+    {
+      "id": "claude",
+      "publicEntry": "https://claude.ai/new",
+      "resolvedHost": "claude.ai",
+      "initialHTTP": 403,
+      "initialProbeRecordedAt": "2026-11-25T12:06:11.097Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "HTTP 403 challenge on the new-chat page",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "HTTP 403 challenge on the new-chat page"
+      }
+    },
+    {
+      "id": "gemini",
+      "publicEntry": "https://gemini.google.com/app",
+      "resolvedHost": "gemini.google.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:04.556Z",
+      "implementation": "site_dom",
+      "guestEditor": "rich-textarea .ql-editor",
+      "guestAttachmentControl": "Upload & tools button in input-area-fieldset",
+      "finding": "Also exposed an auxiliary Quill clipboard separate from the editor.",
+      "pinRead": {
+        "publicEntry": "https://gemini.google.com/app",
+        "observedAt": "2026-11-25T13:09:45.363Z",
+        "http": 200,
+        "host": "gemini.google.com",
+        "admittedRoute": true,
+        "layoutEditorCount": 2,
+        "eligibleVisibilityCount": 2,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "copilot",
+      "publicEntry": "https://copilot.microsoft.com/",
+      "resolvedHost": "copilot.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:07.285Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "The official URL redirected to copilot.com and displayed a sign-in page.",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "The official URL redirected to copilot.com and displayed a sign-in page."
+      }
+    },
+    {
+      "id": "perplexity",
+      "publicEntry": "https://www.perplexity.ai/",
+      "resolvedHost": "www.perplexity.ai",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:08.611Z",
+      "implementation": "site_dom",
+      "guestEditor": "Editable role=textbox in group/composer-row",
+      "guestAttachmentControl": "Add files, plugins, and more button",
+      "finding": "A file input elsewhere on the page was outside the captured composer row.",
+      "pinRead": {
+        "publicEntry": "https://www.perplexity.ai/",
+        "observedAt": "2026-11-25T13:09:50.489Z",
+        "http": 200,
+        "host": "www.perplexity.ai",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "grok",
+      "publicEntry": "https://grok.com/",
+      "resolvedHost": "grok.com",
+      "initialHTTP": 403,
+      "initialProbeRecordedAt": "2026-11-25T12:06:17.754Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "HTTP 403 challenge on the public product.",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "HTTP 403 challenge on the public product."
+      }
+    },
+    {
+      "id": "poe",
+      "publicEntry": "https://poe.com/",
+      "resolvedHost": "poe.com",
+      "initialHTTP": 403,
+      "initialProbeRecordedAt": "2026-11-25T12:06:19.661Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "The public entry redirected to a login route with HTTP 403.",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "The public entry redirected to a login route with HTTP 403."
+      }
+    },
+    {
+      "id": "deepseek",
+      "publicEntry": "https://chat.deepseek.com/",
+      "resolvedHost": "chat.deepseek.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:21.833Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "The public entry redirected to the sign-in route.",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "The public entry redirected to the sign-in route."
+      }
+    },
+    {
+      "id": "kimi",
+      "publicEntry": "https://www.kimi.com/",
+      "resolvedHost": "www.kimi.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:21.589Z",
+      "implementation": "site_dom",
+      "guestEditor": ".chat-input-editor",
+      "guestAttachmentControl": ".chat-editor input.hidden-input[type=file]",
+      "finding": "The observed field and toolkit trigger were in the original composer.",
+      "pinRead": {
+        "publicEntry": "https://www.kimi.com/",
+        "observedAt": "2026-11-25T13:09:54.973Z",
+        "http": 200,
+        "host": "www.kimi.com",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "qianwen",
+      "publicEntry": "https://www.qianwen.com/",
+      "resolvedHost": "www.qianwen.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:23.073Z",
+      "implementation": "site_dom",
+      "guestEditor": "#input-island-owner [role=textbox][contenteditable=true]",
+      "guestAttachmentControl": "添加附件 button",
+      "finding": "An attachment menu trigger was visible on the China site.",
+      "pinRead": {
+        "publicEntry": "https://www.qianwen.com/",
+        "observedAt": "2026-11-25T13:10:00.116Z",
+        "http": 200,
+        "host": "www.qianwen.com",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "qwen",
+      "publicEntry": "https://chat.qwen.ai/",
+      "resolvedHost": "chat.qwen.ai",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:26.331Z",
+      "implementation": "site_dom",
+      "guestEditor": "textarea.message-input-textarea",
+      "guestAttachmentControl": "input#filesUpload with Upload files label",
+      "finding": "The international site mounted its field in the composer.",
+      "pinRead": {
+        "publicEntry": "https://chat.qwen.ai/",
+        "observedAt": "2026-11-25T13:55:59.735Z",
+        "http": 200,
+        "host": "chat.qwen.ai",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "doubao",
+      "publicEntry": "https://www.doubao.com/chat/",
+      "resolvedHost": "www.doubao.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:26.880Z",
+      "implementation": "site_dom",
+      "guestEditor": ".guidance-input-surface .tiptap, or a guest textarea",
+      "guestAttachmentControl": "[data-testid=upload_file_button] on the Tiptap variant",
+      "finding": "A later guest variant exposed a different textarea and a send control. The Tiptap-only binding does not select the other textarea.",
+      "pinRead": {
+        "publicEntry": "https://www.doubao.com/chat/",
+        "observedAt": "2026-11-25T13:56:02.753Z",
+        "http": 200,
+        "host": "www.doubao.com",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "refused",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "yuanbao",
+      "publicEntry": "https://yuanbao.tencent.com/",
+      "resolvedHost": "yuanbao.tencent.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:26.796Z",
+      "implementation": "site_dom",
+      "guestEditor": "#searchbar-editor .ql-editor",
+      "guestAttachmentControl": "Add button in the same searchbar editor",
+      "finding": "The guest landing page navigated to a draft route. No conversation identifier is stored here.",
+      "pinRead": {
+        "publicEntry": "https://yuanbao.tencent.com/",
+        "observedAt": "2026-11-25T13:56:06.732Z",
+        "http": 200,
+        "host": "yuanbao.tencent.com",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "qingyan",
+      "publicEntry": "https://chatglm.cn/",
+      "resolvedHost": "chatglm.cn",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:29.016Z",
+      "implementation": "site_dom",
+      "guestEditor": ".chat-sender textarea.el-textarea__inner",
+      "guestAttachmentControl": ".upload-attachment-picker input.file-input",
+      "finding": "There was a separate profile-picture field outside the composer.",
+      "pinRead": {
+        "publicEntry": "https://chatglm.cn/",
+        "observedAt": "2026-11-25T13:56:11.295Z",
+        "http": 200,
+        "host": "chatglm.cn",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "spark",
+      "publicEntry": "https://xinghuo.xfyun.cn/",
+      "resolvedHost": "xinghuo.xfyun.cn",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:38.778Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": "Guest textarea #login-askwindow-textarea on /desk",
+      "guestAttachmentControl": "添加附件 button on that guest component",
+      "finding": "The desktop guest composer is explicitly excluded. The signed-in composer structure remains unobserved.",
+      "pinRead": {
+        "publicEntry": "https://xinghuo.xfyun.cn/desk",
+        "observedAt": "2026-11-25T13:56:20.033Z",
+        "http": 200,
+        "host": "xinghuo.xfyun.cn",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 1,
+        "pin": "refused",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "meta",
+      "publicEntry": "https://www.meta.ai/",
+      "resolvedHost": "www.meta.ai",
+      "initialHTTP": 403,
+      "initialProbeRecordedAt": "2026-11-25T12:06:36.716Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "HTTP 403 on the public product, with no available editor.",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "HTTP 403 on the public product, with no available editor."
+      }
+    },
+    {
+      "id": "mistral",
+      "publicEntry": "https://chat.mistral.ai/work",
+      "resolvedHost": "chat.mistral.ai",
+      "initialHTTP": 403,
+      "initialProbeRecordedAt": "2026-11-25T12:06:39.993Z",
+      "implementation": "brand_semantics_only",
+      "guestEditor": null,
+      "guestAttachmentControl": null,
+      "finding": "HTTP 403 challenge on the work route.",
+      "pinRead": {
+        "pin": "NOT_RUN",
+        "reason": "HTTP 403 challenge on the work route."
+      }
+    },
+    {
+      "id": "wenxin",
+      "publicEntry": "https://wenxin.baidu.com/",
+      "resolvedHost": "wenxin.baidu.com",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:39.949Z",
+      "implementation": "site_dom",
+      "guestEditor": "#ci-main textarea#chat-textarea",
+      "guestAttachmentControl": ".ci-merge-upload-wrapper #ci-merge-upload-btn",
+      "finding": "The visible site-owned upload control was a div within the original composer.",
+      "pinRead": {
+        "publicEntry": "https://wenxin.baidu.com/",
+        "observedAt": "2026-11-25T13:56:13.983Z",
+        "http": 200,
+        "host": "wenxin.baidu.com",
+        "admittedRoute": true,
+        "layoutEditorCount": 2,
+        "eligibleVisibilityCount": 1,
+        "pin": "bound",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    },
+    {
+      "id": "zai",
+      "publicEntry": "https://chat.z.ai/",
+      "resolvedHost": "chat.z.ai",
+      "initialHTTP": 200,
+      "initialProbeRecordedAt": "2026-11-25T12:06:42.077Z",
+      "implementation": "site_dom",
+      "guestEditor": "textarea#chat-input",
+      "guestAttachmentControl": ".messageInputContainer input[type=file] and button#upload-file-button",
+      "finding": "A repeat probe found the textarea under an aria-hidden ancestor despite its nonzero layout bounds.",
+      "pinRead": {
+        "publicEntry": "https://chat.z.ai/",
+        "observedAt": "2026-11-25T13:56:16.285Z",
+        "http": 200,
+        "host": "chat.z.ai",
+        "admittedRoute": true,
+        "layoutEditorCount": 1,
+        "eligibleVisibilityCount": 0,
+        "pin": "refused",
+        "browser": "158.0.8127.38",
+        "pinSourceSHA256": "eecbf53cfdb91ec7870cb406da8dbe6cb8802ccfe3267a014435305ad86f72f1"
+      }
+    }
+  ]
+}
