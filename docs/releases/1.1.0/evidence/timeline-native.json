@@ -1,0 +1,48 @@
+{
+  "observedAtUTC": "2026-11-25T13:08:55Z",
+  "sourceCheckpoint": "56911aee90495e6e255ef385c6b2af0ff3f69a0a",
+  "sourceBase": "2b270aec5cf57d2b4165acd52bcc730fa1052a02",
+  "environment": "arm64 macOS 27.0 (26A428), Apple Swift 6.4, local interactive WindowServer",
+  "scope": "Debug RiftletUI with synthetic local assets. The transfer receiver is a separate native NSPanel in the test process. No AI website or signed release candidate was exercised.",
+  "timeline": {
+    "result": "PASS",
+    "input": "Pixel wheel NSEvents delivered to the production NSScrollView, nonactivating row windows and AppKit accessibility actions for explicit selection",
+    "retainedAssetCount": 41,
+    "initialLoadedCount": 24,
+    "earlierPageRequests": [18],
+    "activeSequencesAtLatest": [39, 41],
+    "usedSequenceBetweenActiveItems": 40,
+    "forms": [
+      {"form":"tray", "firstScrollPoints":2, "rowFrameMoved":true, "distinctUUIDsSeen":41, "finalOffset":0},
+      {"form":"windChime", "firstScrollPoints":2, "rowFrameMoved":true, "distinctUUIDsSeen":41, "finalOffset":0},
+      {"form":"microSlit", "firstScrollPoints":2, "rowFrameMoved":true, "distinctUUIDsSeen":41, "finalOffset":0}
+    ],
+    "duplicatesInAnyViewport": 0,
+    "explicitClickOriginsPerForm": ["active", "history"],
+    "extraClickDispatchesFromScrolling": 0,
+    "stdoutSHA256": "86532db23c61527beba07c34c0210ae8ede02950f54f8325283ea61c5c193468",
+    "reproduceWithXcode": "swift test --filter PresentationBoundaryTests/testNativeScrollingKeepsCaptureOrderAndPagesPastTwentyWithoutSelecting",
+    "localExecution": "The Command Line Tools installation lacks xctest. A standalone Swift executable linked the same debug modules and drove the native sequence reported here."
+  },
+  "nativeFileDrag": {
+    "result": "PASS",
+    "input": "Software CGEvents through WindowServer into Riftlet thumbnail NSView, NSDraggingSession and native NSDraggingDestination",
+    "originalPNGSHA256": "5fbe38b985fd2463d48adf7a6daffce50d4c49c262bcb4243bd2a58fd6acefe4",
+    "outcomes": [
+      {"gesture":"active rejection", "destinationEntries":1, "fileCopies":0, "activeTrayCallbacks":0},
+      {"gesture":"active Escape", "destinationEntries":1, "fileCopies":0, "activeTrayCallbacks":0},
+      {"gesture":"active accepted", "destinationEntries":1, "fileCopies":1, "activeTrayCallbacks":1, "revision":7},
+      {"gesture":"retained UNKNOWN accepted", "destinationEntries":1, "fileCopies":1, "activeTrayCallbacks":0}
+    ],
+    "nativeMouseDowns": 4,
+    "cancelledFrozenClicks": 4,
+    "clickDispatches": 0,
+    "originalFileURLsReadByReceiver": 2,
+    "allReceiverByteHashesMatchOriginal": true,
+    "originalBytesPreservedAfterEachGesture": true,
+    "runtimeNote": "AppKit logged sandbox_extension_consume failed twice. Both accepted URL reads succeeded and their hashes matched inside the receiver callback.",
+    "stdoutSHA256": "c88de97b072c450b4b2915519ca939abeed7235db643de37cf9cfd04884ae747",
+    "reproduce": "Tests/NativeTimeline/run-drag.sh in a dedicated unlocked macOS test session with existing permission to post events",
+    "cleanup": "The driver closed its receiver and source panels, removed its synthetic test directory, and restored the cursor."
+  }
+}
