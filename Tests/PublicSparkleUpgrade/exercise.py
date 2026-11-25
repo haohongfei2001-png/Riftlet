@@ -19,14 +19,14 @@ testdir = Path(__file__).resolve().parent
 repo = testdir.parents[1]
 common = runpy.run_path(str(testdir.parent / 'ReleaseUpgradeHost/run.py'))
 call, wait, sha = (common[k] for k in ('call', 'wait_for', 'sha'))
-assert common['safe_context']() and os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-111-public-upgrade-qa'
+assert common['safe_context']() and os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-110-sparkle-65-to-68'
 assert call('stat', '-f%Su', '/dev/console').stdout.strip() == call('id', '-un').stdout.strip()
 mode = os.environ['UPGRADE_MODE']
-assert mode in ('preflight', 'upgrade', 'private-upgrade')
+assert mode == 'private-upgrade'
 private = mode == 'private-upgrade'
 upgrading = mode != 'preflight'
 local = runpy.run_path(str(testdir/'private_feed.py')) if private else None
-version, build = ('1.0.11', '67') if upgrading else ('1.0.10', '65')
+version, build = ('1.1.0', '68') if upgrading else ('1.0.10', '65')
 previous = '036a41733a57810824a830b0090e7360de22cdba3819704484bb01053da7033d'
 candidate = os.environ.get('UPGRADE_DMG_SHA256', '') if upgrading else previous
 assert re.fullmatch(r'[a-f0-9]{64}', candidate)
@@ -44,7 +44,7 @@ proof = {'status':'INCOMPLETE', 'mode':mode, 'workflow':os.environ['GITHUB_RUN_I
          'scope':'Publicly downloaded, unmodified Developer ID applications and public signed feed. Synthetic PNGs in a fresh hosted account.'}
 
 if private:
-    proof['scope']='Public signed 65, locally signed loopback feed, private draft 67 DMG, disposable hosted Mac and its actual Sparkle UI.'
+    proof['scope']='Public signed 65, locally signed loopback feed, private draft 68 DMG, disposable hosted Mac and its actual Sparkle UI.'
 
 def open_old():
     extra=['--args','-SUFeedURL',local['base_url']+'private.xml'] if private else []

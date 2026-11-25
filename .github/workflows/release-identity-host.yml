@@ -5,7 +5,7 @@ on:
       mode:
         required: true
         type: choice
-        options: [preflight, upgrade, private-upgrade]
+        options: [private-upgrade]
       candidate_sha256:
         description: SHA-256 of the candidate DMG for the selected upgrade channel
         required: false
@@ -57,7 +57,7 @@ jobs:
           path: test-results/public-sparkle.json
           if-no-files-found: error
   owner_draft_update:
-    if: inputs.mode == 'private-upgrade' && github.ref == 'refs/heads/codex/riftlet-111-public-upgrade-qa' && github.actor == github.repository_owner
+    if: inputs.mode == 'private-upgrade' && github.ref == 'refs/heads/codex/riftlet-110-sparkle-65-to-68' && github.actor == github.repository_owner
     runs-on: macos-15-intel
     timeout-minutes: 20
     # GitHub requires push access even for a GET on a draft release.
