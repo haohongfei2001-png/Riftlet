@@ -2162,7 +2162,7 @@ public final class RiftPanelController {
     }
 
     private func timelineDidScroll() {
-        guard let snapshot = timeline, let viewport = timelineViewport, !closed else { return }
+        guard timeline != nil, timelineViewport != nil, !closed else { return }
         let browsing = timelineScroll.offset > 0
         let changed = isShowingRecentHistory != browsing
         isShowingRecentHistory = browsing
@@ -2171,11 +2171,24 @@ public final class RiftPanelController {
         // follows a lifted finger. Each layout only creates intersecting cells.
         apply(lastRecords)
         if changed { onRecentHistoryVisibilityChanged?(browsing) }
-        if browsing, snapshot.hasOlder, let cursor = snapshot.oldestPageSequence,
-           timelineScroll.offset + viewport.pitch >= viewport.maximumOffset, requestedOlderThan != cursor {
-            requestedOlderThan = cursor
-            onLoadOlderTimeline?(cursor)
-        }
+        requestOlderTimelineIfNearEnd()
+    }
+
+    /// Release only the matching failed read. A subsequent user scroll may
+    /// retry it; a late failure must never clear a different request.
+    public func olderTimelineReadFailed(before cursor: Int64) {
+        guard requestedOlderThan == cursor, timeline?.oldestPageSequence == cursor else { return }
+        requestedOlderThan = nil
+    }
+
+    private func requestOlderTimelineIfNearEnd() {
+        guard !closed, !userHidden, !captureSuppressed, timelineScroll.offset > 0,
+              let snapshot = timeline, let viewport = timelineViewport, snapshot.hasOlder,
+              let cursor = snapshot.oldestPageSequence, let load = onLoadOlderTimeline,
+              timelineScroll.offset + viewport.pitch >= viewport.maximumOffset,
+              requestedOlderThan != cursor else { return }
+        requestedOlderThan = cursor
+        load(cursor)
     }
 
     public func scrollTimeline(with event: NSEvent) { scroll(event) }
@@ -2186,9 +2199,16 @@ public final class RiftPanelController {
         if timeline == nil { render(lastRecords, timeline: lastRecords, hasOlder: false) }
         if trayExpanded { setTrayExpanded(false) }
         finishQueueTransition(allowShift: false)
+        let before = timelineScroll.offset
         forwardingWheel = true
         timelineScroll.scrollWheel(with: event)
         forwardingWheel = false
+        // At the oldest edge AppKit may clamp the wheel without notifying its
+        // clip view. An explicit older-bound gesture can still retry a read.
+        if event.scrollingDeltaY > 0, event.momentumPhase.isEmpty, timelineScroll.offset == before,
+           before == timelineScroll.maximumOffset {
+            requestOlderTimelineIfNearEnd()
+        }
     }
 
     public func showLatest() {
@@ -2226,6 +2246,7 @@ public final class RiftPanelController {
     public func showOldest() {
         if timeline != nil, !userHidden, !gate.isHolding {
             timelineScroll.move(to: timelineScroll.maximumOffset)
+            requestOlderTimelineIfNearEnd()
             return
         }
         if isShowingRecentHistory { showRecentHistory(false) }

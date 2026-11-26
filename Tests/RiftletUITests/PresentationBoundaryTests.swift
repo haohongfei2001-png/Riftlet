@@ -392,6 +392,52 @@ final class PresentationBoundaryTests: XCTestCase {
         }
     }
 
+    @MainActor func testTimelineReadFailureCanRetrySameCursorAtClampedEdge() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
+        var configuration = RiftConfiguration()
+        configuration.desktopForm = .tray
+        var pressed: [UUID] = [], selected: [UUID] = []
+        let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+            configuration: configuration, reduceMotionOverride: { true },
+            onPress: { id, _ in pressed.append(id) }, onSelect: { selected.append($0) })
+        defer { panel.close() }
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        let all = (1...41).map { record(Int64($0), visibility: .archived, reason: .automaticArchive) }
+        var cursors: [Int64] = []
+        panel.onLoadOlderTimeline = { cursors.append($0) }
+        panel.render([], timeline: Array(all.suffix(24)), hasOlder: true)
+        panel.showOldest()
+        XCTAssertEqual(panel.timelineOffset, panel.maximumTimelineOffset)
+        XCTAssertGreaterThan(panel.timelineOffset, 0)
+        XCTAssertEqual(cursors, [18])
+
+        func continueScrollingOlder() throws {
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+            let window = try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))
+            panel.scrollTimeline(with: try TimelineWheelFixture.event(in: window, units: .pixel, delta: 8))
+        }
+
+        panel.olderTimelineReadFailed(before: 17)
+        try continueScrollingOlder()
+        XCTAssertEqual(cursors, [18], "An unrelated completion must not unlock the current read")
+
+        panel.olderTimelineReadFailed(before: 18)
+        XCTAssertEqual(cursors, [18], "Reporting a failure must not immediately retry")
+        try continueScrollingOlder()
+        XCTAssertEqual(cursors, [18, 18], "A new explicit scroll can retry the same cursor without moving the clip")
+        try continueScrollingOlder()
+        XCTAssertEqual(cursors, [18, 18], "A second gesture cannot duplicate the in-flight read")
+        let oldMaximum = panel.maximumTimelineOffset
+        panel.render([], timeline: all, hasOlder: false)
+        XCTAssertGreaterThan(panel.maximumTimelineOffset, oldMaximum)
+        panel.olderTimelineReadFailed(before: 18)
+        panel.showOldest()
+        XCTAssertEqual(cursors, [18, 18])
+        XCTAssertTrue(pressed.isEmpty)
+        XCTAssertTrue(selected.isEmpty)
+    }
+
     @MainActor func testExplicitPagingAfterSwallowKeepsItsPageOnLaterFailure() throws {
         let panel = try controller()
         defer { panel.close() }
