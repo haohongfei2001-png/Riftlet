@@ -1,10 +1,11 @@
-"""Build the fixture tool from the exact stable build 65 Core and SQLite module."""
+"""Build the fixture tool from the exact stable build 67 Core and SQLite module."""
 from pathlib import Path
 import json,shutil,subprocess,tempfile,sys
 def build(repository, base):
-    pinned={'RiftletCore':'77d15fc1965bc05c15834b9d643ea1672b1f9162','CSQLite':'b09e2c80f8ca3beaacb84be61d257db6e3ce97b5'}
+    pinned={'RiftletCore':'68d63ef920d58d2b5cc5356b8dc7dd9fb39d7d1f','CSQLite':'b09e2c80f8ca3beaacb84be61d257db6e3ce97b5'}
     package=base/'fixture-source'
     src=package/'Sources';src.mkdir(parents=True)
+    assert subprocess.check_output(['git','-C',repository,'rev-parse','HEAD'],text=True).strip()=='2598c0004d1f897880951e6c8a38c7503eb61948'
     for name,tree in pinned.items():
         actual=subprocess.check_output(['git','-C',repository,'rev-parse','HEAD:Sources/'+name],text=True).strip()
         assert actual==tree

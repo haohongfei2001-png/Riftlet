@@ -20,9 +20,10 @@ def file_sha(path):
 
 def fetch_private_inputs():
     assert os.environ['GITHUB_REPOSITORY'] == 'haohongfei2001-png/Riftlet'
-    assert os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-110-sparkle-65-to-68'
+    assert os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-110-sparkle-67-to-68-qa'
     assert os.environ['RUNNER_ENVIRONMENT'] == 'github-hosted'
     assert os.environ['GITHUB_ACTOR'] == os.environ['GITHUB_REPOSITORY_OWNER']
+    assert os.environ['GITHUB_TRIGGERING_ACTOR'] == os.environ['GITHUB_REPOSITORY_OWNER']
     os.umask(0o077)
     private_dir.mkdir(mode=0o700)
     release_id = int(os.environ['PRIVATE_RELEASE_ID'])

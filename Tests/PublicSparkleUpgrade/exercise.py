@@ -19,15 +19,17 @@ testdir = Path(__file__).resolve().parent
 repo = testdir.parents[1]
 common = runpy.run_path(str(testdir.parent / 'ReleaseUpgradeHost/run.py'))
 call, wait, sha = (common[k] for k in ('call', 'wait_for', 'sha'))
-assert common['safe_context']() and os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-110-sparkle-65-to-68'
+assert common['safe_context']() and os.environ['GITHUB_REF'] == 'refs/heads/codex/riftlet-110-sparkle-67-to-68-qa'
 assert call('stat', '-f%Su', '/dev/console').stdout.strip() == call('id', '-un').stdout.strip()
 mode = os.environ['UPGRADE_MODE']
-assert mode == 'private-upgrade'
+assert mode in ('private-upgrade', 'preflight')
+if mode == 'private-upgrade':
+    assert os.environ['GITHUB_ACTOR'] == os.environ['GITHUB_TRIGGERING_ACTOR'] == os.environ['GITHUB_REPOSITORY_OWNER']
 private = mode == 'private-upgrade'
 upgrading = mode != 'preflight'
 local = runpy.run_path(str(testdir/'private_feed.py')) if private else None
-version, build = ('1.1.0', '68') if upgrading else ('1.0.10', '65')
-previous = '036a41733a57810824a830b0090e7360de22cdba3819704484bb01053da7033d'
+version, build = ('1.1.0', '68') if upgrading else ('1.0.11', '67')
+previous = '1611fbbd1866d1e686489dece6b8fbc03d7f0dcde4669a0b58c8a9a95c0c8f41'
 candidate = os.environ.get('UPGRADE_DMG_SHA256', '') if upgrading else previous
 assert re.fullmatch(r'[a-f0-9]{64}', candidate)
 assert upgrading == (candidate != previous)
@@ -44,7 +46,7 @@ proof = {'status':'INCOMPLETE', 'mode':mode, 'workflow':os.environ['GITHUB_RUN_I
          'scope':'Publicly downloaded, unmodified Developer ID applications and public signed feed. Synthetic PNGs in a fresh hosted account.'}
 
 if private:
-    proof['scope']='Public signed 65, locally signed loopback feed, private draft 68 DMG, disposable hosted Mac and its actual Sparkle UI.'
+    proof['scope']='Public signed 67, locally signed loopback feed, private draft 68 DMG, disposable hosted Mac and its actual Sparkle UI.'
 
 def open_old():
     extra=['--args','-SUFeedURL',local['base_url']+'private.xml'] if private else []
@@ -101,18 +103,18 @@ def run():
     assert call('pgrep','-x','Riftlet',check=False).returncode!=0
     work.mkdir(mode=0o700)
     source=work/'source';source.mkdir()
-    fixture=runpy.run_path(str(testdir/'fixture.py'))['build'](repo,work)
+    fixture=runpy.run_path(str(testdir/'fixture.py'))['build'](repo/'stable67',work)
     process=work/'process'; verifier=work/'verify'
     call('xcrun','swiftc',testdir.parent/'ReleaseUpgradeHost/app-process.swift','-o',process,timeout=100)
     call('xcrun','swiftc',repo/'scripts/verify-update-signature.swift','-o',verifier,timeout=100)
-    baseline=work/'Riftlet-1.0.10.dmg';get(rooturl+'v1.0.10/'+baseline.name,baseline)
+    baseline=work/'Riftlet-1.0.11.dmg';get(rooturl+'v1.0.11/'+baseline.name,baseline)
     assert sha(baseline)==previous
     call('xcrun','stapler','validate',baseline)
     call('spctl','--assess','--type','open','--context','context:primary-signature',baseline,timeout=80)
     app.parent.mkdir(exist_ok=True)
     with volume(baseline,'old') as released:
         call('ditto','--rsrc','--extattr',released,app)
-    proof['startingApp']=inspect(app,'1.0.10','65')
+    proof['startingApp']=inspect(app,'1.0.11','67')
     info=app/'Contents/Info.plist'
     feed=work/'live.xml'
     if private:
@@ -130,8 +132,11 @@ def run():
     else:
         assert enc.get('url')==rooturl+'v'+version+'/'+archive.name
         if upgrading: get(enc.get('url'),archive)
+    if not upgrading:
+        archive=baseline
     assert sha(archive)==candidate and archive.stat().st_size==int(enc.get('length'))
     call(verifier,info,archive,enc.get(ns+'edSignature'))
+    proof['upgradeTo68Executed']=False
     proof['privateFeed' if private else 'publicFeed']={'build':build,'sha256':sha(feed),'enclosureSHA256':sha(archive),'oldPublicKeyVerifiedFeedAndEnclosure':True}
     expected=proof['startingApp']
     if upgrading:
@@ -153,10 +158,10 @@ def run():
     # Work through the released Core exclusively in a separate fixture directory while the
     # old app is stopped; never edit the ordinary app's database through SQL.
     call(process,'quit',app)
-    detached=work/'detached65'
+    detached=work/'detached67'
     common['move_idle_root'](data,detached,process,app)
     try:
-        # Build 65 documents {} as its user-selected 'off' lifecycle preference.
+        # Build 67 documents {} as its user-selected 'off' lifecycle preference.
         # Prevent the normal idle-archive timer from independently changing fixture rows.
         lifecycle=detached/'lifecycle-settings.json'
         assert not lifecycle.is_symlink()
@@ -191,7 +196,7 @@ def run():
             return {'assetID':aid,'assetPNG':inputs[0],'operationID':oid,'attempt':row[1],'phase':row[2],
                     'invocationID':iid,'historyVisibility':visible[0],'historyReason':visible[1],
                     'receiptSHA256':hashlib.sha256(row[3].encode()).hexdigest(),'dispatchCheckpointSHA256':hashlib.sha256(raw).hexdigest(),
-                    'fixtureScope':'Synthetic offline UNKNOWN created with signed build 65 source QueueStore APIs in an idle, detached, hosted test library; real build 65 collected the PNGs.'}
+                    'fixtureScope':'Synthetic offline UNKNOWN created with signed build 67 source QueueStore APIs in an idle, detached, hosted test library; real build 67 collected the PNGs.'}
     old_op=operation_proof()
     prefs={k:pref(k) for k in (key,'SUEnableAutomaticChecks','historyDisplayStyle')}
     assert prefs['historyDisplayStyle']=='imageGrid'
@@ -220,17 +225,19 @@ def run():
     assert [sha(source/name) for name in ('Screenshot-identity-43.png','Screenshot-identity-199.png')]==inputs
     proof['retainedLibrary']={'sqliteSnapshotSHA256':save_database('after.sqlite'),'oldRowsAndMediaExact':True,'preferencesUnchanged':True,
                               'newPID':new,'installed':expected,'retainedHistoricOperation':old_op}
-    proof['status']='PRIVATE_LOOPBACK_IN_APP_UPGRADE_PASS' if private else ('PUBLIC_IN_APP_UPGRADE_PASS' if upgrading else 'PUBLIC_BUILD_65_UP_TO_DATE_PREFLIGHT_PASS')
+    proof['upgradeTo68Executed']=private
+    proof['status']='PRIVATE_LOOPBACK_IN_APP_UPGRADE_PASS' if private else ('PUBLIC_IN_APP_UPGRADE_PASS' if upgrading else 'PUBLIC_BUILD_67_UP_TO_DATE_PREFLIGHT_PASS')
 
 try:
     with (local['serve']() if private else nullcontext()) as requests:
         run()
     if private:
         assert 'private.xml' in requests and local['archive_name'] in requests
-        proof['loopback']={'source':'Signed process launch argument for build 65','requests':requests,'serverStopped':True,
+        proof['loopback']={'source':'Signed process launch argument for build 67','requests':requests,'serverStopped':True,
                            'onlyLocal':True,'persistentFeedOverride':call('defaults','read','com.riftlet.app','SUFeedURL',check=False).returncode==0}
         assert proof['loopback']['persistentFeedOverride'] is False
 except Exception:
+    proof['upgradeTo68Executed']=False
     proof['status']='INCOMPLETE'
     raise
 finally:
