@@ -109,7 +109,30 @@ private func developerOption(in safari: AXUIElement, pid: pid_t) async -> Bool {
         return false
     }
     print("settingsDeveloperAppleEventsBefore=\(initial)")
-    if !initial, !press(checkbox) { print("settingsDeveloper=BLOCKED_APPLE_EVENTS_PRESS"); return false }
+    if !initial {
+        // Only the verified checkbox itself can receive this normal pointer click.
+        // Never reuse coordinates or post a second click into a possible approval view.
+        guard let focused = element(attribute(safari, "AXFocusedWindow")), CFEqual(focused, settings),
+              foreground(), !modal(safari),
+              let rawPosition = attribute(checkbox, "AXPosition"), CFGetTypeID(rawPosition) == AXValueGetTypeID(),
+              let rawSize = attribute(checkbox, "AXSize"), CFGetTypeID(rawSize) == AXValueGetTypeID()
+        else { print("settingsDeveloper=BLOCKED_POINTER_PREFLIGHT"); return false }
+        var position = CGPoint.zero
+        var size = CGSize.zero
+        let positionOK = AXValueGetValue(rawPosition as! AXValue, .cgPoint, &position)
+        let sizeOK = AXValueGetValue(rawSize as! AXValue, .cgSize, &size)
+        let center = CGPoint(x: position.x + size.width / 2, y: position.y + size.height / 2)
+        var hit: AXUIElement?
+        let hitStatus = AXUIElementCopyElementAtPosition(AXUIElementCreateSystemWide(), Float(center.x), Float(center.y), &hit)
+        guard positionOK, sizeOK, center.x.isFinite, center.y.isFinite, size.width > 2, size.height > 2,
+              hitStatus == .success, let hit, CFEqual(hit, checkbox),
+              let down = CGEvent(mouseEventSource: nil, mouseType: .leftMouseDown, mouseCursorPosition: center, mouseButton: .left),
+              let up = CGEvent(mouseEventSource: nil, mouseType: .leftMouseUp, mouseCursorPosition: center, mouseButton: .left)
+        else { print("settingsDeveloper=BLOCKED_POINTER_HIT_NOT_EXACT hitStatus=\(hitStatus.rawValue)"); return false }
+        down.postToPid(pid)
+        up.postToPid(pid)
+        print("settingsDeveloperPointer=POSTED_ON_EXACT_CHECKBOX")
+    }
     let possiblePromptOwners: Set<String> = ["com.apple.SecurityAgent", "com.apple.CoreServicesUIAgent",
         "com.apple.UserNotificationCenter", "com.apple.TCCUIAgent"]
     for _ in 0..<24 {
