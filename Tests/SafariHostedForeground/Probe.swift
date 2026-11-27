@@ -110,12 +110,36 @@ private func developerOption(in safari: AXUIElement, pid: pid_t) async -> Bool {
     }
     print("settingsDeveloperAppleEventsBefore=\(initial)")
     if !initial, !press(checkbox) { print("settingsDeveloper=BLOCKED_APPLE_EVENTS_PRESS"); return false }
-    try? await Task.sleep(for: .milliseconds(350))
-    guard foreground(), !modal(safari), checked(checkbox) == true else {
-        print("settingsDeveloper=BLOCKED_READBACK_OR_APPROVAL_UNTOUCHED"); return false
+    let possiblePromptOwners: Set<String> = ["com.apple.SecurityAgent", "com.apple.CoreServicesUIAgent",
+        "com.apple.UserNotificationCenter", "com.apple.TCCUIAgent"]
+    for _ in 0..<24 {
+        let focused = element(attribute(safari, "AXFocusedWindow"))
+        let windows = attribute(safari, "AXWindows") as? [AXUIElement] ?? []
+        let sheets = windows.reduce(0) { $0 + ((attribute($1, "AXSheets") as? [AXUIElement]) ?? []).count }
+        let dialogWindows = windows.filter {
+            (attribute($0, "AXSubrole") as? String) == "AXDialog" || (attribute($0, "AXModal") as? NSNumber)?.boolValue == true
+        }.count
+        let front = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        if sheets > 0 || dialogWindows > 0 || modal(safari) || front.map(possiblePromptOwners.contains) == true {
+            let approvalText: Set<String> = ["allow javascript from apple events", "allow", "cancel", "turn on"]
+            let seen = approvalText.sorted().filter { name in windows.contains { window in
+                search(window, roles: ["AXButton", "AXStaticText"], labels: [name]) != nil
+            } }
+            print("settingsDeveloper=BLOCKED_APPROVAL_UI_UNTOUCHED sheetCount=\(sheets) dialogCount=\(dialogWindows) systemPromptOwner=\(front.map(possiblePromptOwners.contains) == true) recognizedLabels=\(seen.joined(separator: ","))")
+            return false
+        }
+        guard foreground() else {
+            print("settingsDeveloper=BLOCKED_FOCUS_CHANGED focusedWindow=\(focused != nil)"); return false
+        }
+        if let refreshed = search(settings, roles: ["AXCheckBox"], labels: itemLabels),
+           checked(refreshed) == true {
+            print("settingsDeveloper=PASS_READBACK_CHECKED")
+            return true
+        }
+        try? await Task.sleep(for: .milliseconds(100))
     }
-    print("settingsDeveloper=PASS_READBACK_CHECKED")
-    return true
+    print("settingsDeveloper=BLOCKED_CHECKBOX_NOT_CHECKED_AFTER_2S")
+    return false
 }
 
 private actor ConsentResult {
