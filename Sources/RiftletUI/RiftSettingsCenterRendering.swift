@@ -73,7 +73,7 @@ extension RiftSettingsCenterController {
             case .unavailable: chromeState = ProductCopy.text("连接未成功", "Connection Failed")
             }
         }
-        text("attachment.workflow", ProductCopy.text("打开 ChatGPT 草稿，点一下桌面边缘的截图即可附加。由你决定何时发送。", "Open a ChatGPT draft and click a screenshot at the edge of your desktop to attach it. You choose when to send."))
+        text("attachment.workflow", ProductCopy.text("打开对话草稿，点选边缘的截图或将它拖入草稿。由你决定何时发送。", "Open a draft and click a thumbnail or drag it into the conversation. You choose when to send."))
         labels["attachment.workflow"]?.isHidden = !supportsConnectionCheck
         text("attachment.browser", product.setup.browser.displayName)
         attachmentBrowserRow.isHidden = !supportsConnectionCheck

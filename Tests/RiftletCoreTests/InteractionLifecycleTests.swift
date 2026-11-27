@@ -703,9 +703,13 @@ final class InteractionLifecycleTests: XCTestCase {
         let recent = try await reopened.recentTrayHistory(limit: 200)
         XCTAssertEqual(recent.map(\.id), captures.prefix(20).reversed().map(\.id))
         XCTAssertTrue(FileManager.default.fileExists(atPath: directory.appendingPathComponent(captures[22].fileName).path))
+        let timeline = try await reopened.historyPage(beforeSequence: nil)
+        let retained = try XCTUnwrap(timeline.records.first { $0.id == captures[22].id })
+        let click = try await reopened.beginTraySelection(assetID: retained.id, expectedRevision: retained.visibilityRevision, fromHistory: true)
+        await reopened.endTraySelection(click)
         do {
-            _ = try await reopened.beginTraySelection(assetID: captures[22].id, expectedRevision: 1, fromHistory: true)
-            XCTFail("A stale row outside the bounded history authorized a click")
+            _ = try await reopened.beginTraySelection(assetID: retained.id, expectedRevision: retained.visibilityRevision, fromHistory: true)
+            XCTFail("A stale visibility revision authorized a second click")
         } catch RiftletError.invalidTransition {}
     }
 

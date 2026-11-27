@@ -28,15 +28,17 @@ public enum ChatGPTWebPageProgram {
         profileID: "chatgpt-web-zh-attached-development-20261027-v2",
         completionSignal: .attached, uploadStartProfileID: acceptanceUploadStartProfileID)
 
-    public static func load() throws -> WebPageProgram {
-        let resources: Bundle
+    static func resourceBundle() throws -> Bundle {
         if Bundle.main.bundleURL.pathExtension == "app" {
             guard let url = Bundle.main.resourceURL?.appendingPathComponent("Riftlet_RiftletAdapters.bundle"),
                   let packaged = Bundle(url: url) else { throw WebAdapterError.programUnavailable }
-            resources = packaged
-        } else {
-            resources = Bundle.module
+            return packaged
         }
+        return Bundle.module
+    }
+
+    public static func load(includingConversationProviders: Bool = false) throws -> WebPageProgram {
+        let resources = try resourceBundle()
         guard let url = resources.url(forResource: "chatgpt-web-20261027", withExtension: "js"),
               let source = try? String(contentsOf: url, encoding: .utf8), !source.isEmpty,
               source.utf8.count <= ChatGPTWebPageProgram.maximumSourceBytes else { throw WebAdapterError.programUnavailable }
@@ -65,7 +67,8 @@ public enum ChatGPTWebPageProgram {
         // cannot veto a new handoff; the separate legacy reader remains available
         // only to explicit historical tooling.
         return WebPageProgram(sourceID: sourceID, functionSource: source,
-                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3, pinSource: pinSource)
+                              maximumChunkBytes: 256 * 1024, inputDiscoveryTimeout: 3, pinSource: pinSource,
+                              includesConversationProviders: includingConversationProviders)
     }
 }
 

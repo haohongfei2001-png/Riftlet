@@ -294,69 +294,101 @@ final class PresentationBoundaryTests: XCTestCase {
         XCTAssertEqual(selected, [a.id])
     }
 
-    @MainActor func testNativeWheelBrowsesRecentPagesAndReturnsToEmptyTrayInEveryForm() throws {
-        func wheel(_ delta: Int32, on view: NSView, momentum: Bool = false) throws {
-            let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: .line, wheelCount: 1,
-                wheel1: delta, wheel2: 0, wheel3: 0))
-            if momentum { cg.setIntegerValueField(.scrollWheelEventMomentumPhase, value: 2) }
-            view.scrollWheel(with: try XCTUnwrap(NSEvent(cgEvent: cg)))
+    func testOldActiveCardDoesNotPretendUnloadedHistoryIsAdjacent() {
+        let old = record(1), current = record(50), earlier = record(49, visibility: .archived, reason: .automaticArchive)
+        let state = RiftTimelineSnapshot(active: [old, current], page: [current, earlier], hasOlder: true)
+        XCTAssertEqual(state.records.map(\.sequence), [50, 49])
+        XCTAssertEqual(state.oldestPageSequence, 49)
+        XCTAssertEqual(state.byID[old.id], old)
+    }
+
+    @MainActor func testNativeScrollingKeepsCaptureOrderAndPagesPastTwentyWithoutSelecting() throws {
+        func inputWindow(in panel: RiftPanelController) throws -> NSWindow {
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+            return try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))
+        }
+        func wheel(_ points: Int32, in panel: RiftPanelController) throws {
+            panel.scrollTimeline(with: try TimelineWheelFixture.event(in: inputWindow(in: panel),
+                                                                       units: .pixel, delta: points))
         }
         for form in RiftDesktopForm.allCases where form.isAvailable {
             _ = NSApplication.shared
             guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
-            var config = RiftConfiguration()
-            config.desktopForm = form
+            var configuration = RiftConfiguration()
+            configuration.desktopForm = form
+            var selections: [UUID] = []
             let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
-                configuration: config, reduceMotionOverride: { true },
-                onSelect: { _ in XCTFail("Scrolling must never attach") })
+                configuration: configuration, reduceMotionOverride: { true }, holdsSelectionUntilFinished: true,
+                onSelect: { selections.append($0) })
             defer { panel.close() }
-            panel.setTrayCapture(enabled: false, defaultMode: .window)
-            let recent = (1...11).map { record(Int64($0), status: .used,
-                visibility: .swallowed, revision: 1, reason: .legacyCompletion) }
-            let active = (1...11).map { record(Int64($0)) }
-            panel.render(active, recentHistory: recent)
-            panel.showLatest()
-            var seenActive: Set<UUID> = []
-            for _ in 0...active.count where !panel.isShowingRecentHistory {
-                let rows = panel.diagnosticSnapshot.rows
-                seenActive.formUnion(rows.map(\.assetID))
-                try wheel(1, on: rowView(try XCTUnwrap(rows.first?.assetID), in: panel))
+            panel.setTrayCapture(enabled: true, defaultMode: .window)
+            let a = record(39), c = record(41)
+            let b = record(40, status: .used, visibility: .swallowed, revision: 1, reason: .traySelection)
+            let earlier = (1...38).map { record(Int64($0), visibility: .archived, reason: .automaticArchive) }
+            let all = earlier + [a, b, c]
+            var cursors: [Int64] = []
+            var pendingPage: Int64?
+            panel.onLoadOlderTimeline = { cursor in
+                cursors.append(cursor)
+                pendingPage = cursor
             }
-            XCTAssertEqual(seenActive, Set(active.map(\.id)))
-            XCTAssertTrue(panel.isShowingRecentHistory)
-            panel.showRecentHistory(false)
-            panel.render([], recentHistory: recent)
-            advanceQuietEdgeRefill(panel)
-            func historyButton() throws -> NSView {
-                try XCTUnwrap(NSApp.windows.first { $0.isVisible &&
-                    $0.contentView?.accessibilityIdentifier() == "riftlet.recentHistory" }?.contentView)
+            panel.render([a, c], timeline: Array(all.suffix(24)), hasOlder: true)
+            XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [a.id, c.id])
+            try TimelineWheelFixture.trackpad(in: inputWindow(in: panel), delta: 2,
+                                               deliver: panel.scrollTimeline(with:))
+            _ = TimelineWheelFixture.wait(until: { panel.timelineOffset > 0 })
+            XCTAssertGreaterThan(panel.timelineOffset, 0)
+            XCTAssertLessThan(panel.timelineOffset, 8, "The first scroll must move by pixels")
+            var seen = Set(panel.diagnosticSnapshot.rows.map(\.assetID))
+            func sampleRows() {
+                let rows = panel.diagnosticSnapshot.rows.map(\.assetID)
+                XCTAssertEqual(Set(rows).count, rows.count)
+                seen.formUnion(rows)
             }
-            XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
-            try wheel(1, on: historyButton())
-            XCTAssertTrue(panel.isShowingRecentHistory)
-            let newest = try XCTUnwrap(panel.diagnosticSnapshot.rows.first?.assetID)
-            XCTAssertEqual(newest, recent.first?.id)
-            try wheel(1, on: rowView(newest, in: panel), momentum: true)
-            XCTAssertEqual(panel.visibleRange.lowerBound, 0)
-            var seen: Set<UUID> = []
-            var pageCount = 0
-            while pageCount < recent.count {
-                let rows = panel.diagnosticSnapshot.rows
-                seen.formUnion(rows.map(\.assetID))
-                if seen.count == recent.count { break }
-                try wheel(1, on: rowView(try XCTUnwrap(rows.first?.assetID), in: panel))
-                pageCount += 1
+            var checkedOrigins = false
+            for _ in 0..<1200 {
+                let before = panel.timelineOffset
+                try wheel(8, in: panel)
+                guard TimelineWheelFixture.wait(until: { panel.timelineOffset > before }, sampling: sampleRows)
+                else { XCTFail("Forward trackpad motion stopped at \(before) of \(panel.maximumTimelineOffset)"); break }
+                if let cursor = pendingPage {
+                    // Main loads the older rows asynchronously from SQLite. Deliver
+                    // them after AppKit returns from the triggering wheel event.
+                    pendingPage = nil
+                    XCTAssertEqual(cursor, 18)
+                    let offset = panel.timelineOffset
+                    let visible = Set(panel.diagnosticSnapshot.rows.map(\.assetID))
+                    let oldMaximum = panel.maximumTimelineOffset
+                    panel.render([a, c], timeline: all, hasOlder: false)
+                    XCTAssertGreaterThan(panel.maximumTimelineOffset, oldMaximum)
+                    XCTAssertEqual(panel.timelineOffset, offset, accuracy: 1)
+                    XCTAssertTrue(visible.isSubset(of: Set(panel.diagnosticSnapshot.rows.map(\.assetID))))
+                    sampleRows()
+                }
+                let rows = panel.diagnosticSnapshot.rows.map(\.assetID)
+                if !checkedOrigins && Set(rows).isSuperset(of: [a.id, b.id, c.id]) {
+                    for item in [a, b] {
+                        XCTAssertTrue(try rowView(item.id, in: panel).accessibilityPerformPress())
+                        XCTAssertEqual(panel.selectionIsFromRecentHistory(for: item.id), item.id == b.id)
+                        panel.finishSelection(item.id)
+                    }
+                    checkedOrigins = true
+                }
+                if panel.maximumTimelineOffset - panel.timelineOffset < 1 { break }
             }
-            XCTAssertEqual(seen, Set(recent.map(\.id)))
-            for _ in 0...pageCount { try wheel(-1, on: historyButton()) }
-            XCTAssertFalse(panel.isShowingRecentHistory)
-            XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
-            XCTAssertTrue(try historyButton().accessibilityPerformPress())
-            XCTAssertTrue(panel.isShowingRecentHistory)
-            panel.render([], recentHistory: [])
-            XCTAssertTrue(panel.diagnosticSnapshot.rows.isEmpty)
-            XCTAssertTrue(try historyButton().accessibilityPerformPress())
-            XCTAssertFalse(panel.isShowingRecentHistory)
+            XCTAssertEqual(panel.timelineOffset, panel.maximumTimelineOffset, accuracy: 1)
+            XCTAssertEqual(cursors, [18])
+            let missingSequences = all.filter { !seen.contains($0.id) }.map(\.sequence)
+            XCTAssertEqual(seen, Set(all.map(\.id)), "\(form.rawValue) missing sequences \(missingSequences)")
+            XCTAssertEqual(selections, [a.id, b.id])
+            for _ in 0..<500 where panel.timelineOffset > 0 {
+                let before = panel.timelineOffset
+                try wheel(-40, in: panel)
+                guard TimelineWheelFixture.wait(until: { panel.timelineOffset < before })
+                else { XCTFail("Reverse trackpad motion stopped at \(before)"); break }
+            }
+            XCTAssertEqual(panel.timelineOffset, 0)
+            XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [a.id, c.id])
         }
     }
 

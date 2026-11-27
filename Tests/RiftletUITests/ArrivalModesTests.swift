@@ -237,7 +237,7 @@ final class ArrivalModesTests: XCTestCase {
         XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [second.id])
         XCTAssertTrue(selected.isEmpty)
         panel.showRecentHistory(true)
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), [first.id])
+        XCTAssertEqual(Set(panel.diagnosticSnapshot.rows.map(\.assetID)), [first.id, second.id])
         XCTAssertTrue(try row(panel, id: first.id).2.accessibilityPerformPress())
         XCTAssertEqual(selected, [first.id])
     }

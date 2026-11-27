@@ -306,11 +306,15 @@ final class RiftLifecycleTests: XCTestCase {
         var initial = records
         initial[0] = record(image: records[0].image, status: .unknown,
                             visibility: .swallowed, reason: .uploadStarted)
-        panel.render(initial)
+        let active = Array(records.dropFirst())
+        panel.render(active, timeline: initial, hasOlder: false)
+        panel.showAsset(records[30].id)
+        let browsing = panel.diagnosticSnapshot.rows.map(\.assetID)
+        XCTAssertTrue(browsing.contains(records[30].id))
         let failed = record(image: records[0].image, status: .failed, visibility: .swallowed, reason: .uploadStarted)
-        panel.render(Array(records.dropFirst()), recentHistory: [failed])
-        XCTAssertEqual(panel.diagnosticSnapshot.rows.first?.assetID, records[1].id,
-                       "Updating history preserves the current active page")
+        panel.render(active, timeline: [failed] + active, hasOlder: false)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), browsing,
+                       "An observation never resets the current native scroll position")
         panel.showAsset(records[99].id)
         XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { $0.assetID == records[99].id })
         var restored = records

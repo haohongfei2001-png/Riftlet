@@ -78,7 +78,7 @@ final class HistoryPresentationTests: XCTestCase {
             uploadStartEvidence: .init(profileID: "simulation-upload-start-v1", signal: .correlatedProgress, evidenceID: "original"))
         let entry = RiftHistoryEntry(record: record, operation: op, startReceipt: start)
         let pending = RiftHistoryEntry(record: record, operation: op, lastReceipt: start)
-        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "已交给 ChatGPT")
+        XCTAssertEqual(HistoryPresentation.localizedState(for: entry, copy: .simplifiedChinese), "已交给对话")
         XCTAssertEqual(HistoryPresentation.detailText(for: entry, copy: .simplifiedChinese), "上传结果见原对话。")
         XCTAssertTrue(RiftHistoryFilter.handedOff.includes(entry))
         XCTAssertFalse(RiftHistoryFilter.attached.includes(entry))
@@ -114,6 +114,12 @@ final class HistoryPresentationTests: XCTestCase {
         let missing = asset(status: .missing, operationID: unknown.activeOperationID, id: unknown.id)
         XCTAssertFalse(RiftHistoryEntry(record: missing, operation: ambiguous.operation).canRequestReattachment)
         XCTAssertFalse(ambiguous.canRestoreToRift)
+        let gemini = TargetLease(adapterID: ConversationProvider.gemini.adapterID, surface: .webChat,
+                                 applicationID: "com.google.Chrome", sessionID: "session", windowID: "window",
+                                 documentID: "doc", composerID: "composer", draftGeneration: "generation")
+        let otherProvider = RiftHistoryEntry(record: unknown, operation: try operation(for: unknown, phase: .unknown, webTarget: gemini))
+        XCTAssertTrue(otherProvider.canReviewOriginal)
+        XCTAssertFalse(otherProvider.canRequestReattachment)
         let retiredTarget = TargetLease(adapterID: "legacy-web", surface: .webChat, applicationID: "retired",
                                         sessionID: "old", windowID: "old", documentID: "old",
                                         composerID: "old", draftGeneration: "old")

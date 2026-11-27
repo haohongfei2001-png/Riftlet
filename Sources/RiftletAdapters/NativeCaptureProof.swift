@@ -7,16 +7,31 @@ import RiftletCore
 /// App publication/host epoch and final page validation remain separate gates.
 enum NativeCaptureProof {
     static func digest(_ data: Data, session: String, window: String, tab: String,
-                       applicationID: String = AttachmentBrowser.chrome.rawValue) throws -> String {
+                       applicationID: String = AttachmentBrowser.chrome.rawValue,
+                       expectedProvider: ConversationProvider = .chatgpt) throws -> String {
+        try digest(validatedTarget(data, session: session, window: window, tab: tab,
+                                   applicationID: applicationID, expectedProvider: expectedProvider))
+    }
+
+    static func validatedTarget(_ data: Data, session: String, window: String, tab: String,
+                                applicationID: String, expectedProvider: ConversationProvider) throws -> TargetLease {
         guard data.count <= ObservationDecoder.maximumPayloadBytes,
               let target = try? JSONDecoder().decode(TargetLease.self, from: data),
-              target.adapterID == "chatgpt-web", target.surface == .webChat,
-              ChromeProcessIdentity.supports(applicationID), target.applicationID == applicationID, target.sessionID == session,
-              target.windowID == window, target.tabID == tab,
+              matchesProvider(target, expectedProvider), target.surface == .webChat,
+              let browser = AttachmentBrowser(rawValue: applicationID), browser.acceptsNativeTab(tab),
+              target.applicationID == applicationID, target.sessionID == session, target.windowID == window, target.tabID == tab,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget
         }
-        return try digest(target)
+        return target
+    }
+
+    static func matchesProvider(_ target: TargetLease, _ expected: ConversationProvider) -> Bool {
+        guard target.adapterID == expected.adapterID else { return false }
+        if expected == .chatgpt { return true }
+        guard let draft = target.logicalDraftIdentity else { return false }
+        return target.historyConversationID == nil && draft.isRecognized &&
+            draft.profileID == "conversation-composer-20261125-v1" && draft.id == expected.rawValue + ":" + target.draftGeneration
     }
 
     static func pinnedTarget(_ data: Data, expected: TargetLease, pinID: UUID) throws -> TargetLease {

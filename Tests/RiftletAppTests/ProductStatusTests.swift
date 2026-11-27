@@ -33,7 +33,7 @@ final class ProductStatusTests: XCTestCase {
 
     func testEnglishProductHelpDistinguishesReceiptFromSendingAndPreservesUncertainHistory() {
         let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .english)
-        for description in ["editable new or existing", "moves to recent history", "Scroll up over the tray", "You choose when to send",
+        for description in ["Chrome, Edge or Safari", "Click a thumbnail or drag", "Scroll the timeline", "You choose when to send",
                             "never automatically resubmits", "128 MiB", "macOS 13"] {
             XCTAssertTrue(text.contains(description), description)
         }
@@ -132,7 +132,7 @@ final class ProductStatusTests: XCTestCase {
 
     func testUnifiedProductDoesNotDirectUserToAnotherProductOrClaimRealPageCertification() {
         let text = ProductStatus.supportDescription(for: .unifiedProduct, copy: .simplifiedChinese)
-        for scope in ["新聊天", "已有聊天", "系统和内置截图", "不会自动再次附加",
+        for scope in ["Chrome、Edge 或 Safari", "上下滚动时间线", "系统和内置截图", "不会自动再次附加",
                       "PNG、JPEG 按原文件附加", "相同分辨率的 PNG"] {
             XCTAssertTrue(text.contains(scope), scope)
         }

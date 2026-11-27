@@ -40,7 +40,7 @@ enum RiftTrayLayout {
     static func make(records: [AssetRecord], visibleFrame: CGRect,
                      configuration c: RiftConfiguration, firstVisibleIndex: Int,
                      backingScale: Double, captureEnabled: Bool, menu: RiftTrayMenuState? = nil,
-                     displayFrame: CGRect? = nil, recentHistory: Bool = false) -> RiftLayoutResult {
+                     displayFrame: CGRect? = nil, recentHistory: Bool = false, alignToCapture: Bool = false) -> RiftLayoutResult {
         let active = recentHistory ? records : records.filter { $0.visibility == .visible }
         let menu = captureEnabled ? menu : nil
         let menuOpen = menu != nil
@@ -118,9 +118,10 @@ enum RiftTrayLayout {
                           width: left ? columnEnd - innerLeft : innerRight - columnStart,
                           height: rowHeight)
         }
+        let leadingEmptySlots = alignToCapture && showButton && twoRows ? max(0, 3 - items.count) : 0
         let rows = items.enumerated().map { index, queueIndex -> RiftRowLayout in
             let record = active[queueIndex]
-            let slot = cell(index)
+            let slot = cell(index + leadingEmptySlots)
             let w = CGFloat(record.image.pixelWidth), h = CGFloat(record.image.pixelHeight)
             // Leave the whole bitmap inside the rounded glass sheet. Its corner
             // and foot belong to the backing, including for tiny and tall images.
@@ -144,7 +145,7 @@ enum RiftTrayLayout {
         result = RiftLayoutResult(rows: rows, lineFrame: .zero, firstVisibleIndex: first,
                                   capacity: capacity, totalCount: active.count + (captureEnabled && !showButton && !menuOpen ? 1 : 0))
         result.surfaceFrame = surface
-        if showButton { result.captureSlot = cell(items.count) }
+        if showButton { result.captureSlot = cell(items.count + leadingEmptySlots) }
         if menuOpen {
             result.captureMenuFrame = CGRect(x: innerLeft, y: rowBottom, width: innerRight - innerLeft, height: rowHeight)
         }

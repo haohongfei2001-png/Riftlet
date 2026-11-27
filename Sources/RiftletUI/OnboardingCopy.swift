@@ -22,7 +22,7 @@ extension ProductCopy {
     var resume: String { text("继续收录", "Resume Collection") }
     var unhide: String { text("显示桌面截图", "Show Desktop Screenshots") }
     var recheckFolder: String { text("重新检查文件夹", "Check Folder Again") }
-    var chromeHeading: String { text("把截图附加到 ChatGPT", "Attach screenshots to ChatGPT") }
+    var chromeHeading: String { text("把截图附加到对话", "Attach screenshots to a conversation") }
     var automationHeading: String { text("允许 Riftlet 连接浏览器", "Allow Riftlet to connect to your browser") }
     var display: String { text("所在显示器", "Display") }
     var retryDisplay: String { text("重试显示器选择", "Retry Display Selection") }
@@ -34,8 +34,8 @@ extension ProductCopy {
     }
     var rootLabel: String { quickStart }
     var introDetail: String {
-        text("在 Chrome 或 Edge 打开 ChatGPT 草稿，用 Mac 平常的方式截屏。点桌面边缘托盘里的图片，截图就会附加到这份草稿。",
-             "Open your ChatGPT draft in Chrome or Edge and take a screenshot as usual. Click its thumbnail at the edge of your desktop to attach it to that draft.")
+        text("在 Chrome、Edge 或 Safari 打开对话草稿，照常截屏。点选边缘缩略图，或将它拖入草稿。上下滚动可浏览以前的截图。",
+             "Open a conversation draft in Chrome, Edge or Safari and take a screenshot. Click its thumbnail or drag it into the draft. Scroll the timeline to find earlier screenshots.")
     }
     var reviewDetail: String {
         text("当前为隔离审核：不连接浏览器或上传。",
@@ -63,8 +63,8 @@ extension ProductCopy {
     }
     var finishChrome: String { text("请先完成浏览器连接设置。", "Finish connecting your browser first.") }
     func finishReady(browser: SetupBrowser) -> String {
-        text("已连接 \(browser.displayName)。截一张图，在 \(browser.displayName) 打开要使用的 ChatGPT 草稿，点桌面边缘的缩略图即可附加。",
-             "\(browser.displayName) is connected. Take a screenshot, open your ChatGPT draft in \(browser.displayName), then click the thumbnail at the edge of your desktop to attach it.")
+        text("已连接 \(browser.displayName)。截一张图，在 \(browser.displayName) 打开要使用的对话草稿，点桌面边缘的缩略图即可附加。",
+             "\(browser.displayName) is connected. Take a screenshot, open your conversation draft in \(browser.displayName), then click the thumbnail at the edge of your desktop to attach it.")
     }
     var folderUnreadable: String {
         text("请确认截图文件夹仍可用。如果曾在 macOS 提示中拒绝访问，请在“文件与文件夹”中允许 Riftlet 读取这个位置，再回到这里。",
@@ -172,7 +172,7 @@ extension ProductCopy {
         case .systemScreenshotCandidate:
             return ("Preview screenshot attachments", "This internal build attaches a screenshot after verifying the image and its destination.")
         case .unsupportedBrowser, .targetUnavailable:
-            return ("Open your ChatGPT draft in Chrome or Edge", "Your screenshots are saved on this Mac. Bring your intended ChatGPT draft to the front in Chrome or Edge.")
+            return ("Open your conversation draft", "Your screenshots are saved on this Mac. Bring your intended draft to the front in Chrome, Edge or Safari.")
         }
     }
 

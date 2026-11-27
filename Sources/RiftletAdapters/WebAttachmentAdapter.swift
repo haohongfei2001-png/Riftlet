@@ -17,6 +17,8 @@ public struct WebPageProgram: Sendable {
     public let sourceID: String
     public let functionSource: String
     public let pinSource: String?
+    public let provider: ConversationProvider
+    public let includesConversationProviders: Bool
     /// Code-owned transport capacity; never negotiated from page JSON. Older
     /// and generic programs retain their 64 KiB default.
     public let maximumChunkBytes: Int
@@ -25,11 +27,21 @@ public struct WebPageProgram: Sendable {
     /// not an upload timeout or a permission to repeat an operation.
     public let inputDiscoveryTimeout: TimeInterval
     public init(sourceID: String, functionSource: String, maximumChunkBytes: Int = 64 * 1024,
-                inputDiscoveryTimeout: TimeInterval = 0, pinSource: String? = nil) {
+                inputDiscoveryTimeout: TimeInterval = 0, pinSource: String? = nil,
+                provider: ConversationProvider = .chatgpt, includesConversationProviders: Bool = false) {
         self.sourceID = sourceID; self.functionSource = functionSource
+        self.provider = provider
+        self.includesConversationProviders = includesConversationProviders
         self.pinSource = pinSource
         self.maximumChunkBytes = maximumChunkBytes
         self.inputDiscoveryTimeout = inputDiscoveryTimeout.isFinite ? min(3, max(0, inputDiscoveryTimeout)) : 0
+    }
+
+    public func resolved(for destination: ConversationProvider) throws -> WebPageProgram {
+        if provider == destination { return self }
+        guard includesConversationProviders else { throw WebAdapterError.invalidTarget }
+        if destination == .chatgpt { return try ChatGPTWebPageProgram.load(includingConversationProviders: true) }
+        return try ConversationPagePrograms.program(for: destination)
     }
 }
 
@@ -137,6 +149,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     case disabled, programUnavailable, syntheticAssetsOnly, invalidTarget, invalidRequest
     case invalidPrivateFile, inputInFlight, invalidReply, browserNotFrontmost, nativeExecutionFailed
     case nativeEventFailed(Int32)
+    case javaScriptDisabled
     case nativeSelectionChanged, captureSuperseded, pageRejected(WebPageRejection)
 
     /// Closed, content-free labels. Never interpolate a generic Error/NSError.
@@ -153,6 +166,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
         case .captureSuperseded: return "captureSuperseded"
         case .browserNotFrontmost: return "browserNotFrontmost"
         case .nativeExecutionFailed: return "nativeExecutionFailed"
+        case .javaScriptDisabled: return "javaScriptDisabled"
         case .nativeEventFailed(let code): return "nativeEventFailed(\(code))"
         case .nativeSelectionChanged: return "nativeSelectionChanged"
         case .pageRejected(let code): return "pageRejected(\(code.rawValue))"
@@ -162,7 +176,7 @@ public enum WebAdapterError: Error, Equatable, Sendable {
     static func isDiagnosticLabel(_ value: String) -> Bool {
         let labels = ["none", "unclassified", "unclassifiedTransportError", "disabled", "programUnavailable",
             "syntheticAssetsOnly", "invalidTarget", "invalidRequest", "invalidPrivateFile", "inputInFlight",
-            "invalidReply", "captureSuperseded", "browserNotFrontmost", "nativeExecutionFailed", "nativeSelectionChanged"]
+            "invalidReply", "captureSuperseded", "browserNotFrontmost", "nativeExecutionFailed", "nativeSelectionChanged", "javaScriptDisabled"]
         if labels.contains(value) { return true }
         if WebPageRejection.allCases.contains(where: { "pageRejected(\($0.rawValue))" == value }) { return true }
         let prefix = "nativeEventFailed("
@@ -415,7 +429,7 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
             try await preflight(asset: request.asset, fileURL: request.fileURL)
             file = try WebUploadFile(request: request, mediaDirectory: mediaDirectory, ordinary: mode == .ordinaryProduct,
                 validateCandidateHeader: mode != .ordinaryProduct && screenshotScope != nil && binding(for: request.asset) != nil)
-            if screenshotScope != nil, let admission = binding(for: request.asset)?.admission {
+            if request.operation.target.adapterID == id, screenshotScope != nil, let admission = binding(for: request.asset)?.admission {
                 try await admission.enroll(request)
             }
             if file.derivedPNG {
@@ -548,7 +562,7 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
     }
 
     private func startPreference(for request: TransferRequest, readingOriginal: Bool = false) async throws -> Bool? {
-        guard mode == .ordinaryProduct, let binding = productBindings[request.asset.origin],
+        guard mode == .ordinaryProduct, request.operation.target.adapterID == id, let binding = productBindings[request.asset.origin],
               try await binding.admission.needsOriginalStart(for: request, readingOriginal: readingOriginal) else { return nil }
         return true
     }
@@ -684,6 +698,10 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
     }
 
     private func checkNewInputScope(_ target: TargetLease) throws {
+        if target.adapterID != id {
+            guard handles(target) else { throw WebAdapterError.invalidTarget }
+            return
+        }
         if let scope = screenshotScope, candidateAdmission != nil || mode == .ordinaryProduct {
             try scope.validateTarget(target)
         }
@@ -701,6 +719,15 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
 
     private func normalize(_ envelope: AttachmentObservationEnvelope, for request: TransferRequest,
                            liveAppend: Bool = false) async throws -> TransferReceipt {
+        if request.operation.target.adapterID != id {
+            let target = request.operation.target
+            guard handles(target), let provider = ConversationProvider(adapterID: target.adapterID) else {
+                throw WebAdapterError.invalidTarget
+            }
+            let scoped = ObservationNormalizer(profile: ConversationPagePrograms.observationProfile(for: provider),
+                developmentScope: .conversationProvider(provider))
+            return try scoped.receipt(from: envelope, for: request, liveAppend: liveAppend)
+        }
         var scopedNormalizer = normalizer
         var originalScope: SystemScreenshotAdmissionScope?
         let binding = binding(for: request.asset)
@@ -765,6 +792,7 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
                 case .captureSuperseded?: label = "captureSuperseded"
                 case .browserNotFrontmost?: label = "browserNotFrontmost"
                 case .nativeExecutionFailed?: label = "nativeExecutionFailed"
+                case .javaScriptDisabled?: label = "javaScriptDisabled"
                 case .nativeEventFailed(let code)?: label = "nativeEventFailed(\(code))"
                 case .nativeSelectionChanged?: label = "nativeSelectionChanged"
                 case .pageRejected(let code)?: label = "pageRejected(\(code.rawValue))"
@@ -777,10 +805,20 @@ public actor WebAttachmentAdapter: OriginalAttachmentRecoveryChecking {
         }
     }
 
+    public nonisolated func handles(_ target: TargetLease) -> Bool {
+        if target.adapterID == id { return true }
+        guard mode == .ordinaryProduct, program?.includesConversationProviders == true,
+              let provider = ConversationProvider(adapterID: target.adapterID), provider != .chatgpt,
+              target.surface == .webChat, target.attachmentBrowser != nil,
+              let draft = target.logicalDraftIdentity, draft.profileID == "conversation-composer-20261125-v1",
+              draft.isRecognized, draft.id.hasPrefix(provider.rawValue + ":") else { return false }
+        return true
+    }
+
     private func check(_ target: TargetLease) throws {
-        guard target.adapterID == id, target.surface == normalizer.profile.surface,
+        guard handles(target), target.surface == normalizer.profile.surface,
               target.surface == .webChat || target.surface == .webWork,
-              target.attachmentBrowser == .chrome || (mode == .ordinaryProduct && target.surface == .webChat && target.attachmentBrowser == .edge),
+              target.attachmentBrowser == .chrome || (mode == .ordinaryProduct && target.surface == .webChat && target.attachmentBrowser != nil),
               !target.sessionID.isEmpty, !target.windowID.isEmpty, target.tabID?.isEmpty == false,
               !target.documentID.isEmpty, !target.composerID.isEmpty, !target.draftGeneration.isEmpty else {
             throw WebAdapterError.invalidTarget

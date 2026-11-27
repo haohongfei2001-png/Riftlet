@@ -79,6 +79,7 @@ final class ScreenshotEntryHost {
     }
 
     private func wireCallbacks() {
+        entry.onScroll = { [weak rift] event in rift?.scrollTimeline(with: event) }
         rift.onTrayCapture = { [weak self] mode in
             guard let self, self.isEnabled, !self.closed, !self.userHidden, self.editor == nil else { return }
             self.entry.setMode(mode)
@@ -371,6 +372,7 @@ final class ScreenshotEntryHost {
         rift.onTrayCancel = nil
         rift.onGeometryChange = nil
         entry.onGeometryChange = nil
+        entry.onScroll = nil
         entry.close()
     }
 }

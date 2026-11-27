@@ -2086,7 +2086,7 @@ function riftletWebAcceptance(command, native) {
     return result;
   }
   if (command.action === 'captureTarget') {
-    if (!['com.google.Chrome', 'com.microsoft.edgemac'].includes(native.applicationID) || !native.sessionID
+    if (!['com.google.Chrome', 'com.microsoft.edgemac', 'com.apple.Safari'].includes(native.applicationID) || !native.sessionID
         || !native.windowID || !native.tabID) fail('NATIVE_CONTEXT_REQUIRED');
     const parts = composer();
     if (command.clickWitnessID != null) {

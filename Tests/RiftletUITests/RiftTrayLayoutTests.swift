@@ -304,7 +304,7 @@ final class RiftTrayLayoutTests: XCTestCase {
         XCTAssertFalse(panel.diagnosticSnapshot.isTransitioning)
     }
 
-    @MainActor func testTrayRespondsToOneWheelNotchAndIgnoresSmallTrackpadMotion() throws {
+    @MainActor func testTrayKeepsLatestRowsDuringOnePixelMotionAndRespondsToOneWheelNotch() throws {
         _ = NSApplication.shared
         guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
         var configuration = RiftConfiguration()
@@ -319,17 +319,38 @@ final class RiftTrayLayoutTests: XCTestCase {
         let latest = panel.visibleRange
         XCTAssertGreaterThan(latest.lowerBound, 0)
         let surface = try XCTUnwrap(NSApp.windows.first { $0.isVisible && $0.contentView is RiftTraySurfaceView }?.contentView)
-        func scroll(_ units: CGScrollEventUnit, _ amount: Int32) throws {
-            let cg = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: units, wheelCount: 1,
-                                           wheel1: amount, wheel2: 0, wheel3: 0))
-            surface.scrollWheel(with: try XCTUnwrap(NSEvent(cgEvent: cg)))
+        let window = try XCTUnwrap(surface.window)
+        let latestIDs = panel.diagnosticSnapshot.rows.map(\.assetID)
+        func settle() {
+            var offset = panel.timelineOffset
+            var changed = ProcessInfo.processInfo.systemUptime
+            XCTAssertTrue(TimelineWheelFixture.wait(until: {
+                let now = ProcessInfo.processInfo.systemUptime
+                if offset != panel.timelineOffset { offset = panel.timelineOffset; changed = now }
+                return now - changed >= 0.18
+            }), "Native scroll animation did not settle")
         }
-        try scroll(.pixel, 1)
+        try TimelineWheelFixture.trackpad(in: window, delta: 1, deliver: surface.scrollWheel(with:))
+        _ = TimelineWheelFixture.wait(until: { panel.timelineOffset > 0 })
+        XCTAssertGreaterThan(panel.timelineOffset, 0)
+        XCTAssertLessThanOrEqual(panel.timelineOffset, 2)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), latestIDs)
+        // Start the independent mechanical-wheel case at the live end. The
+        // trackpad's preceding one-pixel offset must not become its baseline.
+        panel.showLatest()
+        XCTAssertEqual(panel.timelineOffset, 0)
         XCTAssertEqual(panel.visibleRange, latest)
-        try scroll(.line, 1)
+        surface.scrollWheel(with: try TimelineWheelFixture.event(in: window, units: .line, delta: 1))
+        XCTAssertTrue(TimelineWheelFixture.wait(until: { panel.timelineOffset > 2 }))
+        settle()
         XCTAssertLessThan(panel.visibleRange.lowerBound, latest.lowerBound)
-        try scroll(.line, -1)
+        XCTAssertTrue(panel.diagnosticSnapshot.rows.contains { !latestIDs.contains($0.assetID) })
+        surface.scrollWheel(with: try TimelineWheelFixture.event(in: window, units: .line, delta: -1))
+        _ = TimelineWheelFixture.wait(until: { panel.visibleRange == latest })
+        settle()
+        XCTAssertEqual(panel.timelineOffset, 0)
         XCTAssertEqual(panel.visibleRange, latest)
+        XCTAssertEqual(panel.diagnosticSnapshot.rows.map(\.assetID), latestIDs)
     }
 
     @MainActor func testOpeningAndClosingPushesTheFirstExistingUUIDThroughTheTopEdge() throws {

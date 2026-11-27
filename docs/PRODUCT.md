@@ -2,7 +2,11 @@
 
 Riftlet 把 macOS 系统截图附加到用户点图时正在编辑的 ChatGPT 网页草稿。正式支持普通 Google Chrome 和 Microsoft Edge。用户自己发送消息。[当前正式版本与工作状态](quality/ITERATION_STATUS.json) · [公开发行](https://github.com/haohongfei2001-png/Riftlet/releases/latest)
 
-## 托盘和最近截图
+## 1.1.0 候选
+
+1.1.0（68）在同一条本机截图时间线上提供点选和原生文件拖放。活动端紧邻截图按钮。上下滚动可以找回以前截取并保留的图片，包括已附加或已归档的截图。Chrome、Edge 和 Safari 的点击目标按实际草稿、平台和浏览器分别验收。当前网站下载及稳定更新版本是 1.0.11（67）。[候选产品合同](releases/1.1.0/SCOPE.md) · [逐平台实测](releases/1.1.0/ACCEPTANCE.md)
+
+## 已发布版本的托盘和最近截图
 
 系统截图进入活动托盘。用户点选后，图片移到最近截图，即使当时没有合适的草稿或附加失败。向上滑动可查看最近截图，其中包括点过或归档的图片，最多显示 20 张。向下滑动返回活动托盘。再次点选历史图片才会发起一次新的附加。失败不会自动生成卡片或重传。[1.0.10（65）交互说明](releases/1.0.10/RELEASE_NOTES.md)
 

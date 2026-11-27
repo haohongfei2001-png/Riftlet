@@ -95,6 +95,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     var ordinal: Int
     let imageClip = CALayer()
     let imageLayer = CALayer()
+    private(set) var renderedImage: CGImage?
     private var ornament: RiftThumbnailDecoration!
     private var visualHovered = false
     private var visualPressed = false
@@ -108,6 +109,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
     private var arrivalImageOwner: UUID?
     var onDown: ((NSEvent) -> Bool)?
     var onUp: ((Bool, CGPoint?) -> Void)?
+    var onFileDrag: ((NSView, NSEvent, AssetRecord) -> Void)?
     var onScroll: ((NSEvent) -> Void)?
     var onAccessiblePress: (() -> Bool)?
     var onPreview: (() -> Bool)?
@@ -245,6 +247,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
             ornament.plane.isHidden = true
             ornament.lip.isHidden = true
         }
+        renderedImage = image
         imageLayer.contents = image
         CATransaction.commit()
         needsDisplay = true
@@ -279,7 +282,7 @@ private final class RiftRowView: NSView, NSMenuDelegate {
         case .used: suffix = ProductCopy.text("已核对完成", "Completion verified")
         }
         let name = isRecentHistory
-            ? ProductCopy.text("最近截图 \(ordinal)", "Recent screenshot \(ordinal)")
+            ? ProductCopy.text("截图 \(ordinal)", "Screenshot \(ordinal)")
             : ProductCopy.text("截图 \(ordinal)", "Screenshot \(ordinal)")
         setAccessibilityLabel("\(name), \(feedback ?? suffix)")
         let help = feedback ?? ProductCopy.text("截图 \(ordinal) · \(suffix)", "Screenshot \(ordinal) · \(suffix)")
@@ -376,6 +379,8 @@ private final class RiftInputView: NSView {
     weak var rowView: RiftRowView?
     private var approachTracking: NSTrackingArea?
     private var pointerInside = false
+    private var dragOrigin: (point: CGPoint, record: AssetRecord)?
+    private var consumedDrag = false
 
     init(rowView: RiftRowView) {
         self.rowView = rowView
@@ -398,10 +403,28 @@ private final class RiftInputView: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
-        guard bounds.contains(convert(event.locationInWindow, from: nil)), isInsideOriginalRow(event) else { return }
-        _ = rowView?.onDown?(event)
+        dragOrigin = nil
+        consumedDrag = false
+        guard bounds.contains(convert(event.locationInWindow, from: nil)), isInsideOriginalRow(event),
+              let rowView, let window else { return }
+        if event.clickCount == 1 && rowView.record.status != .missing {
+            dragOrigin = (window.convertPoint(toScreen: event.locationInWindow), rowView.record)
+        }
+        _ = rowView.onDown?(event)
+    }
+    override func mouseDragged(with event: NSEvent) {
+        guard let start = dragOrigin, let window = event.window, window === self.window else { return }
+        let point = window.convertPoint(toScreen: event.locationInWindow)
+        guard hypot(point.x - start.point.x, point.y - start.point.y) >= 4 else { return }
+        // Crossing the drag threshold consumes this gesture, even if the file
+        // has disappeared or the destination subsequently rejects the drop.
+        dragOrigin = nil
+        consumedDrag = true
+        rowView?.onFileDrag?(self, event, start.record)
     }
     override func mouseUp(with event: NSEvent) {
+        dragOrigin = nil
+        guard !consumedDrag else { consumedDrag = false; return }
         // AppKit routes release to the original down window even outside its
         // bounds. Test the union of this original asset's two regions, never a
         // replacement row under the release point.
@@ -575,12 +598,22 @@ public final class RiftPanelController {
     private var recentHistory: [AssetRecord] = []
     public private(set) var isShowingRecentHistory = false
     public var onRecentHistoryVisibilityChanged: ((Bool) -> Void)?
-    private var activePageIndex = 0
+    private var timeline: RiftTimelineSnapshot?
+    private let timelineScroll = RiftTimelineScrollView(frame: .zero)
+    private var timelineViewport: RiftTimelineViewport?
+    private var requestedOlderThan: Int64?
+    private var forwardingWheel = false
+    public var onLoadOlderTimeline: ((Int64) -> Void)?
+    var timelineOffset: CGFloat { timelineScroll.offset }
+    var maximumTimelineOffset: CGFloat { timelineScroll.maximumOffset }
     private var historySelections: Set<UUID> = []
-    private var wheelGestureUsed = false
-    private var lastWheelTime: TimeInterval = 0
     public var onGeometryChange: (() -> Void)?
     private let cache: ThumbnailCache
+    private let mediaDirectory: URL
+    private var activeFileDrag: RiftFileDrag?
+    var isDraggingFile: Bool { activeFileDrag != nil }
+    /// The destination accepted a file copy. This callback has no upload, START or send authority.
+    public var onFileDropAccepted: ((UUID, Int64) -> Void)?
     private let onSelect: (UUID) -> Void
     private let onPress: (UUID, TimeInterval) -> Void
     private let onCancelledPress: (UUID) -> Void
@@ -700,7 +733,6 @@ public final class RiftPanelController {
     private var closed = false
     private var generation: UInt = 0
     private var observers: [(NotificationCenter, NSObjectProtocol)] = []
-    private var scrollAccumulator: CGFloat = 0
     private let reduceMotionOverride: (() -> Bool)?
     private let flight = MagnetFlightPresenter()
     private struct ArrivalCandidate {
@@ -774,6 +806,7 @@ public final class RiftPanelController {
         self.onInteractionChange = onInteractionChange
         self.holdsSelectionUntilFinished = holdsSelectionUntilFinished
         self.interactionFence = interactionFence
+        self.mediaDirectory = mediaDirectory
         cache = ThumbnailCache(directory: mediaDirectory)
         decoration = RiftPanel(frame: .zero, decorative: true)
         decoration.contentView = RiftLineView(frame: .zero)
@@ -781,6 +814,7 @@ public final class RiftPanelController {
             guard let self, let row = self.rowWindows[id] else { return }
             self.updateFeedbackDescription(row)
         }
+        timelineScroll.didScroll = { [weak self] in self?.timelineDidScroll() }
         pager.onToggleHistory = { [weak self] in
             guard let self else { return }
             self.showRecentHistory(!self.isShowingRecentHistory)
@@ -1027,7 +1061,10 @@ public final class RiftPanelController {
         guard let pagerLayout else { pager.hide(); return }
         let hidden = captureSuppressed || userHidden || closed
         pager.update(pagerLayout, hidden: hidden, level: presentationLevel)
-        guard !hidden, let screen,
+        // With the capture key disabled and no active cells, keep one accessible
+        // place to start scrolling the retained files even on an empty desktop.
+        let needsEntry = !trayCaptureEnabled && pagerLayout.rows.isEmpty && timeline?.records.isEmpty == false
+        guard (timeline == nil || needsEntry), !hidden, let screen,
               isShowingRecentHistory || !recentHistory.isEmpty || !pagerLayout.rows.isEmpty else {
             pager.updateHistory(frame: nil, showingHistory: false, empty: false, level: presentationLevel)
             return
@@ -1233,8 +1270,30 @@ public final class RiftPanelController {
     }
 
     public func render(_ records: [AssetRecord], recentHistory: [AssetRecord]) {
-        self.recentHistory = recentHistory
+        render(records, timeline: recentHistory, hasOlder: false)
+    }
+
+    public func render(_ records: [AssetRecord], timeline page: [AssetRecord], hasOlder: Bool) {
+        let updated = RiftTimelineSnapshot(active: records, page: page, hasOlder: hasOlder)
+        if timeline?.oldestPageSequence != updated.oldestPageSequence { requestedOlderThan = nil }
+        let anchor = pagerLayout?.rows.first?.assetID
+        let viewport = timelineViewport
+        let oldRow = anchor.flatMap { timeline?.ranks[$0] }.flatMap { viewport?.row(forRank: $0) }
+        timeline = updated
+        recentHistory = page
         render(records)
+        if isShowingRecentHistory && timelineScroll.offset == 0 {
+            isShowingRecentHistory = false
+            if !gate.isHolding && activeFileDrag == nil { apply(records) }
+            onRecentHistoryVisibilityChanged?(false)
+        }
+        // Older pages grow above the current content. New captures arriving at
+        // the opposite end preserve the same visible row while browsing.
+        if let viewport, timelineScroll.offset >= viewport.pitch, let anchor, let oldRow,
+           let rank = updated.ranks[anchor] {
+            let change = viewport.row(forRank: rank) - oldRow
+            if change != 0 { timelineScroll.move(to: timelineScroll.offset + CGFloat(change) * viewport.pitch) }
+        }
     }
 
     /// Supply the committed visibility of newly swallowed records, even while
@@ -1242,6 +1301,7 @@ public final class RiftPanelController {
     public func render(_ records: [AssetRecord]) {
         guard !closed else { return }
         hasReceivedQueueSnapshot = true
+        if activeFileDrag != nil { deferredRecords = records; return }
         if userHidden { lastRecords = records; deferredRecords = nil; return }
         if pendingRefillRecords != nil { pendingRefillRecords = records }
         if isShowingRecentHistory {
@@ -1403,30 +1463,51 @@ public final class RiftPanelController {
     }
 
     private func desktopLayout(_ records: [AssetRecord], screen: NSScreen) -> RiftLayoutResult {
-        let records = isShowingRecentHistory ? recentHistory : records
+        guard let timeline else {
+            return formLayout(records, screen: screen, index: firstVisibleIndex, allVisibilities: false)
+        }
+        let active = records.filter { $0.visibility == .visible && $0.status != .missing }
+        let latest = formLayout(active, screen: screen, index: active.count, allVisibilities: false)
+        let prototype = formLayout(Array(timeline.records.prefix(1)), screen: screen, index: 0, allVisibilities: true)
+        let viewport = RiftTimelineViewport(latest: latest, full: prototype, configuration: configuration,
+            count: timeline.records.count, hasOlder: timeline.hasOlder, screenFrame: screen.visibleFrame)
+        timelineViewport = viewport
+        timelineScroll.configure(size: viewport.clip.size, maximum: viewport.maximumOffset, line: max(1, viewport.pitch / 3))
+        return viewport.layout(snapshot: timeline, offset: timelineScroll.offset) { record in
+            self.formLayout([record], screen: screen, index: 0, allVisibilities: true).rows.first
+        }
+    }
+
+    private func formLayout(_ records: [AssetRecord], screen: NSScreen, index: Int, allVisibilities: Bool) -> RiftLayoutResult {
         let frame = screen.visibleFrame
         let scale = screen.backingScaleFactor
         switch configuration.desktopForm {
         case .tray:
             return RiftTrayLayout.make(records: records, visibleFrame: frame, configuration: configuration,
-                                       firstVisibleIndex: firstVisibleIndex, backingScale: scale,
-                                       captureEnabled: trayCaptureEnabled && !isShowingRecentHistory, menu: trayMenu,
-                                       displayFrame: screen.frame, recentHistory: isShowingRecentHistory)
+                                       firstVisibleIndex: index, backingScale: scale,
+                                       captureEnabled: trayCaptureEnabled && !allVisibilities, menu: trayMenu,
+                                       displayFrame: screen.frame, recentHistory: allVisibilities,
+                                       alignToCapture: timeline != nil)
         case .windChime:
             return RiftWindChimeLayout.make(records: records, visibleFrame: frame, configuration: configuration,
-                                            firstVisibleIndex: firstVisibleIndex, backingScale: scale,
+                                            firstVisibleIndex: index, backingScale: scale,
                                             highContrast: NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast,
-                                            displayFrame: screen.frame, recentHistory: isShowingRecentHistory)
+                                            displayFrame: screen.frame, recentHistory: allVisibilities)
         case .microSlit:
             return RiftLayout.make(records: records, visibleFrame: frame, configuration: configuration,
-                                   firstVisibleIndex: firstVisibleIndex, backingScale: scale,
+                                   firstVisibleIndex: index, backingScale: scale,
                                    highContrast: NSWorkspace.shared.accessibilityDisplayShouldIncreaseContrast,
-                                   recentHistory: isShowingRecentHistory)
+                                   recentHistory: allVisibilities)
         }
     }
 
     private func presentRow(_ row: RowWindow) {
         guard !row.view.isSlidingAtTrayEdge else { return }
+        if isShowingRecentHistory, let viewport = timelineViewport {
+            presentClippedTrayRow(row, frame: row.view.geometry.frame, clip: configuration.desktopForm == .tray ? formSurface.frame : viewport.clip,
+                                  acceptsInput: true)
+            return
+        }
         present(row.panel)
         present(row.imageInput)
         if row.view.geometry.numberFrame.isEmpty { row.numberInput.orderOut(nil) }
@@ -1437,7 +1518,11 @@ public final class RiftPanelController {
         let visible = row.setClippedVisualFrame(frame, inside: clip)
         guard !visible.isEmpty else { return }
         present(row.panel)
-        row.numberInput.orderOut(nil)
+        let number = row.panel.convertToScreen(row.view.convert(row.view.geometry.numberFrame, to: nil)).intersection(visible)
+        if acceptsInput && !number.isEmpty {
+            row.numberInput.setFrame(number, display: true)
+            present(row.numberInput)
+        } else { row.numberInput.orderOut(nil) }
         let hit = row.panel.convertToScreen(row.view.convert(row.view.imageHitFrame, to: nil)).intersection(visible)
         if acceptsInput && !hit.isEmpty {
             row.imageInput.setFrame(hit, display: true)
@@ -1477,6 +1562,9 @@ public final class RiftPanelController {
             view.onCancelCapture = { [weak self] in self?.onTrayCancel?($0) }
             view.onScroll = { [weak self] in self?.scroll($0) }
         }
+        if timeline != nil, timelineScroll.superview !== view {
+            view.addSubview(timelineScroll, positioned: .below, relativeTo: nil)
+        }
         view.setCaptureSession(trayCaptureSessionID, reduceMotion: reduceMotion)
         view.update(layout: layout, colors: configuration.trayColors,
                     transparency: effectiveTrayAppearance.transparency, cameraColor: effectiveTrayAppearance.cameraColor,
@@ -1499,14 +1587,18 @@ public final class RiftPanelController {
             rowWindows.values.forEach { $0.orderOut() }
             decoration.orderOut(nil); formSurface.orderOut(nil); pager.hide(); lastRecords = records; return
         }
-        let displayedRecords = isShowingRecentHistory ? recentHistory : records
-        if let anchor = viewportAnchor {
+        let displayedRecords = records
+        if timeline == nil, let anchor = viewportAnchor {
             let active = isShowingRecentHistory ? recentHistory : records.filter { $0.visibility == .visible }
             let survivors = [anchor] + (pagerLayout?.rows.map(\.assetID) ?? [])
             firstVisibleIndex = RiftLayout.survivingAnchorIndex(previous: survivors,
                 current: active.map(\.id), fallback: firstVisibleIndex)
         }
         let layout = desktopLayout(records, screen: screen)
+        if configuration.desktopForm != .tray, timeline != nil, let host = decoration.contentView,
+           timelineScroll.superview !== host {
+            host.addSubview(timelineScroll, positioned: .below, relativeTo: nil)
+        }
         // Compare two layout frames. AppKit can report a 282.5 pt model as
         // a 283 pt window, even on Retina; a mixed comparison skips the resize.
         let previousSurface = previousTrayFrame ?? (formSurface.isVisible ? pagerLayout?.surfaceFrame : nil) ?? .zero
@@ -1557,7 +1649,7 @@ public final class RiftPanelController {
         if let previewID = peek.assetID {
             let old = rowWindows[previewID]?.view
             let next = layout.rows.first { $0.assetID == previewID }
-            let nextRecord = displayedRecords.first { $0.id == previewID }
+            let nextRecord = timeline?.byID[previewID] ?? displayedRecords.first { $0.id == previewID }
             let visibleGeometryChanged = layout.rows.count != rowWindows.count
                 || layout.rows.contains { $0 != rowWindows[$0.assetID]?.view.geometry }
             if next == nil || visibleGeometryChanged || nextRecord?.visibilityRevision != old?.record.visibilityRevision
@@ -1570,7 +1662,7 @@ public final class RiftPanelController {
             feedbackStates.removeValue(forKey: id)
             rowWindows.removeValue(forKey: id)?.close()
         }
-        let byID = Dictionary(displayedRecords.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
+        let byID = timeline?.byID ?? Dictionary(displayedRecords.map { ($0.id, $0) }, uniquingKeysWith: { _, latest in latest })
         if let parked = displacedTrayRow, !visibleIDs.contains(parked.view.record.id),
            !trayExpanded || byID[parked.view.record.id]?.visibility != .visible {
             parked.close(); displacedTrayRow = nil
@@ -1597,7 +1689,7 @@ public final class RiftPanelController {
                 feedbackStates.removeValue(forKey: record.id)
                 window.view.feedback = nil
             }
-            window.view.isRecentHistory = isShowingRecentHistory
+            window.view.isRecentHistory = isShowingRecentHistory && record.visibility != .visible
             window.view.record = record
             window.view.configuration = configuration
             // Each frame moves the visual panel and its two input islands together.
@@ -1811,6 +1903,10 @@ public final class RiftPanelController {
     }
 
     private func wire(_ window: RowWindow, id: UUID) {
+        window.view.onFileDrag = { [weak self, weak row = window.view] source, event, record in
+            guard let self, let row else { return }
+            self.beginFileDrag(record: record, row: row, source: source, event: event)
+        }
         window.view.onHover = { [weak self, weak view = window.view] inside in
             guard let self, !self.userHidden, !self.closed else { return }
             // Use both input islands so an exit from one cannot clear a hover
@@ -1940,6 +2036,40 @@ public final class RiftPanelController {
         }
     }
 
+    private func beginFileDrag(record: AssetRecord, row: RiftRowView, source: NSView, event: NSEvent) {
+        // A drag must abandon the target captured on mouseDown before exposing
+        // any file on the drag pasteboard. No store selection was made yet.
+        if interaction.heldID == record.id {
+            onCancelledPress(record.id)
+            gate.cancel()
+            pressRegions.removeValue(forKey: record.id)
+            selectionVersions.removeValue(forKey: record.id)
+            historySelections.remove(record.id)
+            mutateInteraction { $0.releasePointer(accepted: false) }
+            row.setVisualState(pressed: false)
+        }
+        guard activeFileDrag == nil, !closed, !userHidden, !captureSuppressed,
+              rowWindows[record.id]?.view === row, row.record == record,
+              row.isDisplayedRecord, record.status != .missing, event.window === source.window,
+              let url = try? RiftFileDrag.file(for: record, in: mediaDirectory) else {
+            flushDeferred()
+            return
+        }
+        peek.cancel()
+        let drag = RiftFileDrag { [weak self] token, result in
+            guard let self, self.activeFileDrag?.id == token else { return }
+            self.activeFileDrag = nil
+            self.mutateInteraction { $0.endAnimation(token) }
+            if !self.closed, result == .copy, record.visibility == .visible {
+                self.onFileDropAccepted?(record.id, record.visibilityRevision)
+            }
+            self.flushDeferred()
+        }
+        activeFileDrag = drag
+        mutateInteraction { $0.beginAnimation(drag.id) }
+        drag.start(url: url, image: row.renderedImage, from: source, event: event)
+    }
+
     private func schedulePeek(_ id: UUID, immediate: Bool = false) {
         // An explicit preview action still opens the image. Ordinary hover
         // reads the current reason first, on the very same pointer-free panel.
@@ -1978,6 +2108,10 @@ public final class RiftPanelController {
 
     private func page(_ direction: Int) {
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
+        if let viewport = timelineViewport {
+            timelineScroll.move(to: timelineScroll.offset - CGFloat(direction) * viewport.pitch * CGFloat(viewport.rowCount))
+            return
+        }
         // Opening at the camera can temporarily advance the drawn cards by one
         // slot. Wheel navigation starts at the card the user actually sees.
         var start = firstVisibleIndex
@@ -2016,54 +2150,45 @@ public final class RiftPanelController {
     }
 
     func navigate(up: Bool) {
-        if isShowingRecentHistory {
-            if !up && firstVisibleIndex == 0 { showRecentHistory(false) }
-            else { page(up ? 1 : -1) }
-        } else if up && firstVisibleIndex == 0 && !recentHistory.isEmpty {
-            showRecentHistory(true)
-        } else {
-            page(up ? -1 : 1)
-        }
+        if let viewport = timelineViewport {
+            timelineScroll.move(to: timelineScroll.offset + (up ? viewport.pitch : -viewport.pitch))
+        } else { page(up ? -1 : 1) }
     }
 
     public func showRecentHistory(_ show: Bool) {
-        guard show != isShowingRecentHistory, !closed, !userHidden, !captureSuppressed,
+        guard let viewport = timelineViewport, !closed, !userHidden, !captureSuppressed,
               !gate.isHolding else { return }
-        finishQueueTransition(allowShift: false)
-        lastRecords = pendingRefillRecords ?? deferredRecords ?? lastRecords
-        pendingRefillRecords = nil; deferredRecords = nil
-        refillTimer?.invalidate(); refillTimer = nil
-        if show { activePageIndex = firstVisibleIndex }
-        if trayExpanded { trayMenu = nil; dismissTrayTracking() }
-        cancelDecorations(reason: .geometryChanged)
-        viewportAnchor = nil
-        firstVisibleIndex = show ? 0 : activePageIndex
-        isShowingRecentHistory = show
-        apply(lastRecords)
-        onRecentHistoryVisibilityChanged?(show)
+        timelineScroll.move(to: show ? max(viewport.pitch, timelineScroll.offset) : 0)
     }
 
+    private func timelineDidScroll() {
+        guard let snapshot = timeline, let viewport = timelineViewport, !closed else { return }
+        let browsing = timelineScroll.offset > 0
+        let changed = isShowingRecentHistory != browsing
+        isShowingRecentHistory = browsing
+        viewportAnchor = nil
+        // The native clip view moves continuously even when gesture inertia
+        // follows a lifted finger. Each layout only creates intersecting cells.
+        apply(lastRecords)
+        if changed { onRecentHistoryVisibilityChanged?(browsing) }
+        if browsing, snapshot.hasOlder, let cursor = snapshot.oldestPageSequence,
+           timelineScroll.offset + viewport.pitch >= viewport.maximumOffset, requestedOlderThan != cursor {
+            requestedOlderThan = cursor
+            onLoadOlderTimeline?(cursor)
+        }
+    }
+
+    public func scrollTimeline(with event: NSEvent) { scroll(event) }
+
     private func scroll(_ event: NSEvent) {
-        guard event.momentumPhase.isEmpty else { return }
-        // These are directional gestures: physically swiping up always opens
-        // history, including when macOS reverses scrolling deltas for the device.
-        let delta = event.isDirectionInvertedFromDevice ? -event.scrollingDeltaY : event.scrollingDeltaY
-        // A detented wheel reports lines. One notch is already an intentional
-        // step; the distance threshold below applies to continuous pixel input.
-        if !event.hasPreciseScrollingDeltas && event.phase.isEmpty {
-            if delta != 0 { navigate(up: delta > 0) }
-            return
-        }
-        if event.phase.contains(.began) || (event.phase.isEmpty && event.timestamp - lastWheelTime > 0.35) {
-            wheelGestureUsed = false; scrollAccumulator = 0
-        }
-        lastWheelTime = event.timestamp
-        guard !wheelGestureUsed else { return }
-        scrollAccumulator += delta
-        guard abs(scrollAccumulator) >= 8 else { return }
-        wheelGestureUsed = true
-        navigate(up: scrollAccumulator > 0)
-        scrollAccumulator = 0
+        guard !forwardingWheel, !userHidden, !closed, !captureSuppressed, !gate.isHolding,
+              activeFileDrag == nil else { return }
+        if timeline == nil { render(lastRecords, timeline: lastRecords, hasOlder: false) }
+        if trayExpanded { setTrayExpanded(false) }
+        finishQueueTransition(allowShift: false)
+        forwardingWheel = true
+        timelineScroll.scrollWheel(with: event)
+        forwardingWheel = false
     }
 
     public func showLatest() {
@@ -2079,7 +2204,12 @@ public final class RiftPanelController {
     /// Explicit history restoration may reveal one existing item without
     /// changing its sort order or reversing the independent user-hidden intent.
     public func showAsset(_ assetID: UUID) {
-        if isShowingRecentHistory { showRecentHistory(false) }
+        if let timeline, let viewport = timelineViewport, let rank = timeline.ranks[assetID],
+           !userHidden, !gate.isHolding {
+            if rowWindows[assetID] != nil { return }
+            timelineScroll.move(to: viewport.pitch * CGFloat(1 + viewport.row(forRank: rank)))
+            return
+        }
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil,
               let index = lastRecords.filter({ $0.visibility == .visible }).firstIndex(where: { $0.id == assetID }) else { return }
         guard rowWindows[assetID] == nil else { return }
@@ -2094,6 +2224,10 @@ public final class RiftPanelController {
     }
 
     public func showOldest() {
+        if timeline != nil, !userHidden, !gate.isHolding {
+            timelineScroll.move(to: timelineScroll.maximumOffset)
+            return
+        }
         if isShowingRecentHistory { showRecentHistory(false) }
         guard !userHidden, !gate.isHolding, !transitioning, !interaction.snapshot.isSelecting, pendingRefillRecords == nil else { return }
         cancelDecorations()

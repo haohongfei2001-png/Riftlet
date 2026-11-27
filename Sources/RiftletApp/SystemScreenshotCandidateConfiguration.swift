@@ -48,7 +48,7 @@ struct ApplicationAttachmentComposition {
             if ordinary.usesUnifiedProduct {
                 return Self(adapter: WebAttachmentAdapter(mediaDirectory: media,
                     executor: executor ?? ChromeAppleEventsExecutor(traceEnabled: traceEnabled, diagnosticTrace: diagnosticTrace),
-                    program: try ChatGPTWebPageProgram.load(), mode: .ordinaryProduct,
+                    program: try ChatGPTWebPageProgram.load(includingConversationProviders: true), mode: .ordinaryProduct,
                     profile: ordinary.observationProfile, polling: polling,
                     productStore: store, productOrigins: ordinary.productOrigins,
                     onInputTransportFinished: onInputTransportFinished, diagnosticTrace: diagnosticTrace), policy: ordinary.receiptPolicy)

@@ -1,6 +1,22 @@
 import Foundation
 import RiftletCore
 
+extension AttachmentBrowser {
+    var sessionPrefix: String {
+        switch self {
+        case .chrome: return "chrome-kernel-v1"
+        case .edge: return "edge-kernel-v1"
+        case .safari: return "safari-kernel-v1"
+        }
+    }
+
+    func acceptsNativeTab(_ id: String) -> Bool {
+        if self == .safari { return SafariTabAddress(serialized: id) != nil }
+        guard let number = Int64(id), number > 0 else { return false }
+        return String(number) == id
+    }
+}
+
 /// Application focus may change at the thumbnail click. The destination must
 /// still match the original process, window, tab and page before input.
 enum ChromeCommandRouting {
@@ -17,8 +33,10 @@ public struct QAOriginalBrowserTab: Decodable, Sendable {
     public let session: String
     public let windowID: String
     public let tabID: String
+    public let url: String?
 
     static let temporaryChat = "https://chatgpt.com/?temporary-chat=true"
+    var expectedURL: String { url ?? Self.temporaryChat }
 
     func allows(_ target: TargetLease) -> Bool {
         applicationID == target.applicationID && session == target.sessionID &&
@@ -30,23 +48,31 @@ public struct QAOriginalBrowserTab: Decodable, Sendable {
         let result = try JSONDecoder().decode(Self.self, from: Data(value.utf8))
         let parts = result.session.split(separator: ":", omittingEmptySubsequences: false)
         let browser = AttachmentBrowser(rawValue: result.applicationID)
-        guard let browser, parts.count == 4,
-              parts[0] == (browser == .chrome ? "chrome-kernel-v1" : "edge-kernel-v1"),
+        guard let browser, let provider = ConversationProvider.matching(url: result.expectedURL),
+              provider != .chatgpt || result.expectedURL == temporaryChat,
+              parts.count == 4, parts[0] == Substring(browser.sessionPrefix),
               let pid = Int32(parts[1]), pid > 0, let seconds = UInt64(parts[2]), seconds > 0,
               let micros = UInt32(parts[3]), micros < 1_000_000,
               let window = Int32(result.windowID), window > 0, String(window) == result.windowID,
-              let tab = Int32(result.tabID), tab > 0, String(tab) == result.tabID
+              browser.acceptsNativeTab(result.tabID)
         else { throw WebAdapterError.invalidTarget }
         return result
     }
 }
 
-/// Native address fixed before asynchronous page discovery. URL query and
-/// fragment do not select another chat; origin and pathname do.
+/// Native address fixed before asynchronous page discovery. ChatGPT binds the
+/// origin and pathname. Other providers also bind the original search and fragment.
 struct ChromeClickRoute: Equatable, Sendable {
     let window: String
     let tab: String
     let address: String
+
+    static func conversation(window: String, tab: String, url: String) throws -> Self {
+        guard let provider = ConversationProvider.matching(url: url) else {
+            throw WebAdapterError.pageRejected(.pageRouteUnsupported)
+        }
+        return try Self(window: window, tab: tab, url: url, keepQueryAndFragment: provider != .chatgpt)
+    }
 
     /// Validate the raw browser URL before the click identity drops credentials
     /// and normalizes the default HTTPS port.
@@ -78,9 +104,9 @@ struct ChromeClickRoute: Equatable, Sendable {
         (route == nil || route == self) && (savedConversation == nil || savedConversation == historyConversationID)
     }
 
-    init(window: String, tab: String, url: String) throws {
+    init(window: String, tab: String, url: String, keepQueryAndFragment: Bool = false) throws {
         guard let windowNumber = Int64(window), windowNumber > 0,
-              let tabNumber = Int64(tab), tabNumber > 0,
+              AttachmentBrowser.chrome.acceptsNativeTab(tab) || AttachmentBrowser.safari.acceptsNativeTab(tab),
               var components = URLComponents(string: url),
               let scheme = components.scheme?.lowercased(), ["https", "http"].contains(scheme),
               let host = components.host?.lowercased(), !host.isEmpty else {
@@ -88,7 +114,7 @@ struct ChromeClickRoute: Equatable, Sendable {
         }
         components.scheme = scheme; components.host = host
         components.user = nil; components.password = nil
-        components.query = nil; components.fragment = nil
+        if !keepQueryAndFragment { components.query = nil; components.fragment = nil }
         if (scheme == "https" && components.port == 443) || (scheme == "http" && components.port == 80) {
             components.port = nil
         }

@@ -1,0 +1,371 @@
+{
+  "scope": "Account and editor preflight on dedicated ordinary-browser landing pages. No product input, test attachment, drag or send.",
+  "checks": {
+    "chrome": {
+      "observedAt": "2026-11-25T13:10:13Z",
+      "originalReceiptSHA256": "c4667f815bc42645e012e25b6c545c04e21d5f0e46c304055b2f6fd6e78d1a04",
+      "ordinaryVendorSigned": true,
+      "birthAndSoleCreatedTab": true,
+      "ownedWindowClosed": true,
+      "fileInputs": 0,
+      "sends": 0,
+      "providers": [
+        {
+          "id": "chatgpt",
+          "landing": "observedLanding",
+          "account": "signedIn",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "claude",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "gemini",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "copilot",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "perplexity",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "grok",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "poe",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "deepseek",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "kimi",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "qianwen",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "qwen",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "doubao",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "yuanbao",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "qingyan",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "spark",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "meta",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "mistral",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "wenxin",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "zai",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        }
+      ]
+    },
+    "edge": {
+      "observedAt": "2026-11-25T13:12:02Z",
+      "originalReceiptSHA256": "e33e85871e473831b2736a9bab755301b051eedafe97bca4faf30914e8e893fa",
+      "ordinaryVendorSigned": true,
+      "birthAndSoleCreatedTab": true,
+      "ownedWindowClosed": true,
+      "fileInputs": 0,
+      "sends": 0,
+      "providers": [
+        {
+          "id": "chatgpt",
+          "landing": "observedLanding",
+          "account": "signedIn",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "claude",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "gemini",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "copilot",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "perplexity",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "grok",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "poe",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "deepseek",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "kimi",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "qianwen",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "qwen",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "doubao",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "yuanbao",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "qingyan",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "spark",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 1,
+          "visibleFileControl": true,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "meta",
+          "landing": "observedLanding",
+          "account": "signInOffered",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "mistral",
+          "landing": "redirectFromDedicatedLanding",
+          "account": "unexamined",
+          "editorsOnLanding": null,
+          "visibleFileControl": null,
+          "challenge": null,
+          "conversationContentDetected": null
+        },
+        {
+          "id": "wenxin",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 1,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        },
+        {
+          "id": "zai",
+          "landing": "observedLanding",
+          "account": "unconfirmed",
+          "editorsOnLanding": 0,
+          "visibleFileControl": false,
+          "challenge": false,
+          "conversationContentDetected": false
+        }
+      ]
+    }
+  },
+  "observerSHA256": "9407742660f66b56916c232b92c44fb1d966ed571cf84f5469fae4f8991d9de2",
+  "sourceSHA256": "a30c15f8b88c3322013effbdfb8f0753f30953e24023218605a43ebcdaae293f"
+}

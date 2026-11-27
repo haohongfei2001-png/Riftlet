@@ -29,6 +29,7 @@ class VerificationError(Exception):
 
 
 PROGRAM_NAMES = ("chatgpt-web-20261027.js", "legacy-web-observe.js")
+CONVERSATION_PROGRAM = "conversation-providers.js"
 ARCHIVED_FINGERPRINTS = {
     "build56-observation-fingerprint.dat": (57, "ed470481df5373d0e702c87087785235d080fb75b85ea27f1e07408e0357ae52"),
     "build57-observation-fingerprint.dat": (58, "c691e6b7bd848bc8e1fb994aa9efd2dc7419b8b73549c0c1e31eb09499287e8a"),
@@ -36,12 +37,14 @@ ARCHIVED_FINGERPRINTS = {
     "build59-observation-fingerprint.dat": (60, "19677788b6a846b2868e0159d8467f9de37544a2ffc24bfd1676b499314580f5"),
     "build60-observation-fingerprint.dat": (61, "3b0e9863be0e542c816f7688f9a880e1a2811e979d33636a611fa8127b76fde6"),
     "build61-observation-fingerprint.dat": (62, "e11bbf207a9649b390944a6024409ba399a638924b0ff4210366c8e0cefdc9c6"),
+    "build67-observation-fingerprint.dat": (68, "d8f2abcb8a3f1d2230f05a2836e6c8753e9bc6ab04b49ef25281400867061ad1"),
 }
-RESOURCE_NAMES = PROGRAM_NAMES + tuple(ARCHIVED_FINGERPRINTS)
+RESOURCE_NAMES = PROGRAM_NAMES + (CONVERSATION_PROGRAM,) + tuple(ARCHIVED_FINGERPRINTS)
 
 
 def resource_names(build):
-    return PROGRAM_NAMES + tuple(name for name, (first, _) in ARCHIVED_FINGERPRINTS.items() if int(build) >= first)
+    programs = PROGRAM_NAMES + ((CONVERSATION_PROGRAM,) if int(build) >= 68 else ())
+    return programs + tuple(name for name, (first, _) in ARCHIVED_FINGERPRINTS.items() if int(build) >= first)
 
 
 ICON_NAME = "Riftlet.icns"

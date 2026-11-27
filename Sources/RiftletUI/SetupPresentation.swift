@@ -17,8 +17,12 @@ public enum SetupStorageState: Equatable, Sendable {
 public typealias SetupBrowser = AttachmentBrowser
 
 extension AttachmentBrowser {
-    var displayName: String { self == .edge ? "Edge" : "Chrome" }
-    var applicationName: String { self == .edge ? "Microsoft Edge" : "Google Chrome" }
+    var displayName: String {
+        switch self { case .chrome: return "Chrome"; case .edge: return "Edge"; case .safari: return "Safari" }
+    }
+    var applicationName: String {
+        switch self { case .chrome: return "Google Chrome"; case .edge: return "Microsoft Edge"; case .safari: return "Safari" }
+    }
 }
 
 /// The menu belongs to the receiving browser. Its instructions never represent a permission observation.
@@ -35,6 +39,10 @@ public enum ChromeAttachmentSetup {
     }
 
     static func instructions(in copy: ProductCopy, browser: SetupBrowser = .chrome) -> String {
+        if browser == .safari {
+            return copy.text("在 Safari 设置的“高级”中显示网页开发者功能，再在“开发者”中勾选“允许 Apple 事件中的 JavaScript”。",
+                             "In Safari Settings, open Advanced and show features for web developers. In Developer, enable Allow JavaScript from Apple Events.")
+        }
         if browser == .edge {
             return copy.text("在 Microsoft Edge 菜单栏中勾选“允许 Apple 事件中的 JavaScript”，然后重新检查连接。",
                              "In the Microsoft Edge menu bar, enable Allow JavaScript from Apple Events, then check the connection again.")
@@ -118,11 +126,11 @@ public enum SetupIssue: Equatable, Sendable {
             return copy.text("暂时无法检查私有存储，不能确认保存状态。已有记录与系统原图保留。",
                              "Riftlet could not check local storage. Existing history and original files are safe.")
         case .unsupportedBrowser:
-            return copy.text("请用 Chrome 或 Edge 打开要附加图片的 ChatGPT 草稿。截图仍在本机。",
-                             "Open the ChatGPT draft you want in Chrome or Edge. Your screenshot is saved locally.")
+            return copy.text("请在 Chrome、Edge 或 Safari 打开要附加图片的对话草稿，也可以直接把截图拖到页面。",
+                             "Open your conversation draft in Chrome, Edge or Safari. You can also drag the screenshot onto the page.")
         case .targetUnavailable:
-            return copy.text("未能连接到可附加图片的聊天。请在 \(browser.displayName) 前台显示要用的 ChatGPT 草稿，确认其中有添加附件的入口。截图仍在本机。",
-                             "Bring your intended ChatGPT draft to the front in \(browser.displayName) and check that attachments are available. The screenshot is still on your Mac.")
+            return copy.text("请在 \(browser.displayName) 前台显示可添加附件的对话。也可以从时间线拖入原图。",
+                             "Bring a conversation that accepts attachments to the front in \(browser.displayName). You can also drag the original from the timeline.")
         case .permissionNotRequested:
             return copy.text("截图已保留。在 Riftlet 设置中检查 \(browser.displayName) 访问权限，然后在 macOS 提示时允许连接。",
                              "Your screenshot is saved. Check \(browser.displayName) access in Riftlet Settings, then allow the connection when macOS asks.")
@@ -242,7 +250,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .systemScreenshotCandidate:
             return "截图自然地停在桌面边缘。内部候选只在目标与图片均通过核验后，附加到当前聊天草稿。"
         case .available:
-            return "新截图出现在桌面边缘。打开 Chrome 或 Edge 中的 ChatGPT 对话，点一下截图就能附加。"
+            return "新截图出现在桌面边缘。打开可添加附件的对话，点选截图或将它拖入草稿。"
         case .unsupportedBrowser, .targetUnavailable:
             return "截图自然地停在桌面边缘。当前附加目标不可用，图片留在本机。"
         }
@@ -270,7 +278,7 @@ public struct SetupPresentation: Equatable, Sendable {
         case .systemScreenshotCandidate:
             return "仅在获准的内部验收中，使用新截图与受支持的 Chrome 普通已有对话。无需先聚焦发言框；目标和原样图片仍须通过核验。"
         case .available:
-            return "在 Chrome 或 Edge 中打开要使用的 ChatGPT 对话，截一张图，再点桌面边缘的缩略图。"
+            return "在 Chrome、Edge 或 Safari 打开对话草稿，截一张图，再点选或拖入边缘缩略图。"
         case .unsupportedBrowser, .targetUnavailable:
             return "先检查当前浏览器与聊天草稿。截图继续保留，不会切换到其他窗口或自动再次附加。"
         }
@@ -347,11 +355,11 @@ public struct SetupPresentation: Equatable, Sendable {
         case .offlineSimulation:
             return copy.text("当前是离线模拟，仅演示生成图片的显示与状态变化；没有连接 ChatGPT。", "This offline preview uses generated images and does not connect to ChatGPT.")
         case .available:
-            return copy.text("在 Chrome 或 Edge 中打开要使用的 ChatGPT 对话，点击桌面边缘的截图即可附加。消息由你发送。", "Open your intended ChatGPT conversation in Chrome or Edge, then click the screenshot at the desktop edge. You decide when to send.")
+            return copy.text("打开要使用的对话草稿，点选桌面边缘的截图或将它拖入草稿。发送由你决定。", "Open your conversation draft and click a screenshot at the desktop edge, or drag it into the draft. You decide when to send.")
         case .unsupportedBrowser:
             return copy.text("当前浏览器不受支持。截图保留，不会切换到其他浏览器或聊天。", "This browser is not supported. Your screenshot is saved locally. Riftlet will not switch browsers or chats.")
         case .targetUnavailable:
-            return copy.text("当前 ChatGPT 草稿或附件入口不可用。截图保留，不会切换目标。", "The current draft or attachment control is unavailable. Your screenshot is saved locally.")
+            return copy.text("当前草稿或附件入口不可用。截图保留，不会切换目标。", "The current draft or attachment control is unavailable. Your screenshot is saved locally.")
         }
     }
 

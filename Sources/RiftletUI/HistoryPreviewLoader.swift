@@ -110,7 +110,8 @@ struct HistoryPreviewImage {
 enum HistoryPreviewDecode {
     static let maximumEncodedBytes = 128 * 1_024 * 1_024
 
-    static func verifiedBytes(asset: ImportedAsset, directory: URL, cancellation: HistoryPreviewCancellation = HistoryPreviewCancellation()) throws -> (Data, HistoryPreviewFileIdentity) {
+    static func verifiedBytes(asset: ImportedAsset, directory: URL, retainingBytes: Bool = true,
+                              cancellation: HistoryPreviewCancellation = HistoryPreviewCancellation()) throws -> (Data, HistoryPreviewFileIdentity) {
         try cancellation.check()
         let name = asset.fileName
         let url = directory.appendingPathComponent(name)
@@ -126,15 +127,18 @@ enum HistoryPreviewDecode {
         // reopen a replaceable pathname. No source pixels are eagerly expanded.
         let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: false)
         var data = Data(), hasher = SHA256()
+        var byteCount = 0
         while true {
             try cancellation.check()
-            let remaining = maximumEncodedBytes - data.count
+            let remaining = maximumEncodedBytes - byteCount
             guard let chunk = try handle.read(upToCount: min(1_024 * 1_024, remaining + 1)), !chunk.isEmpty else { break }
             guard chunk.count <= remaining else { throw HistoryPreviewFailure.invalidFile }
-            hasher.update(data: chunk); data.append(chunk)
+            byteCount += chunk.count
+            hasher.update(data: chunk)
+            if retainingBytes { data.append(chunk) }
         }
         let digest = hasher.finalize().map { String(format: "%02x", $0) }.joined()
-        guard Int64(data.count) == identity.size, digest == asset.sha256.lowercased(),
+        guard Int64(byteCount) == identity.size, digest == asset.sha256.lowercased(),
               try HistoryPreviewFileIdentity.read(descriptor: descriptor) == identity,
               identity.matches(url) else { throw HistoryPreviewFailure.fileChanged }
         try cancellation.check()
