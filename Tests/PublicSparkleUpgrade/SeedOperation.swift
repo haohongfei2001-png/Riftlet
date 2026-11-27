@@ -11,7 +11,7 @@ import RiftletCore
         }
         let path = URL(fileURLWithPath: args[1], isDirectory: true).resolvingSymlinksInPath()
         let authorized = URL(fileURLWithPath: temporary, isDirectory: true).resolvingSymlinksInPath()
-            .appendingPathComponent("public-sparkle/detached65", isDirectory: true)
+            .appendingPathComponent("public-sparkle/detached67", isDirectory: true)
         guard path == authorized else { throw FixtureError.invalidFixture }
         let store = try QueueStore(databaseURL: path.appendingPathComponent("queue.sqlite"))
         let rows = try await store.assets(includeUsed: true)
