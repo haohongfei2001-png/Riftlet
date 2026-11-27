@@ -1,7 +1,7 @@
 name: Safari hosted capability QA
 on:
   pull_request:
-    types: [opened]
+    types: [opened, synchronize]
     branches: [codex/riftlet-safari-foreground-base-20261127]
     paths:
       - '.github/workflows/safari-host-capability-qa.yml'

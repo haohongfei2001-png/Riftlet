@@ -28,7 +28,7 @@ with tempfile.TemporaryDirectory(prefix="riftlet-host-qa-") as tmp:
     subprocess.run(["sw_vers"], check=True, timeout=5)
     subprocess.run(["uname", "-m"], check=True, timeout=5)
     subprocess.run(["/usr/bin/codesign", "--verify", "--strict", "-R",
-                    'anchor apple and identifier "com.apple.Safari"', "/Applications/Safari.app"],
+                    '=anchor apple and identifier = "com.apple.Safari"', "/Applications/Safari.app"],
                    check=True, timeout=15)
     subprocess.run(["xcrun", "swiftc", "-parse-as-library", str(Path(__file__).with_name("Probe.swift")),
                     "-o", str(probe)], check=True, timeout=60)
