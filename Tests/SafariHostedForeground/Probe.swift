@@ -58,57 +58,63 @@ private func waitFor(_ lookup: () -> AXUIElement?) async -> AXUIElement? {
 @MainActor
 private func developerOption(in safari: AXUIElement, pid: pid_t) async -> Bool {
     func foreground() -> Bool { NSWorkspace.shared.frontmostApplication?.processIdentifier == pid }
-    func developer() -> AXUIElement? {
-        guard let bar = element(attribute(safari, "AXMenuBar")) else { return nil }
-        return search(bar, roles: ["AXMenuBarItem"], labels: ["develop", "developer"])
-    }
-    guard foreground(), let bar = element(attribute(safari, "AXMenuBar")) else {
-        print("safariDeveloperGUI=BLOCKED_NO_MENUBAR"); return false
-    }
-    if developer() == nil {
-        guard let safariMenu = search(bar, roles: ["AXMenuBarItem"], labels: ["safari"]),
-              press(safariMenu), let settings = await waitFor({
-                  search(safariMenu, roles: ["AXMenuItem"], labels: ["settings…", "settings...", "preferences…", "preferences..."])
-              }), foreground(), press(settings)
-        else { print("safariDeveloperGUI=BLOCKED_SETTING_MENU_ACTION"); return false }
-        guard let focused = await waitFor({
-            guard let window = element(attribute(safari, "AXFocusedWindow")),
-                  search(window, roles: ["AXRadioButton", "AXButton", "AXTab"], labels: ["advanced"]) != nil
-            else { return nil }
-            return window
-        }), foreground(), !modal(safari),
-              let advanced = search(focused, roles: ["AXRadioButton", "AXButton", "AXTab"], labels: ["advanced"]),
-              press(advanced)
-        else { print("safariDeveloperGUI=BLOCKED_ADVANCED_TAB"); return false }
-        guard let option = await waitFor({
-            search(focused, roles: ["AXCheckBox"], labels: ["show features for web developers", "show develop menu in menu bar"])
-        }), foreground(), !modal(safari), let before = checked(option)
-        else { print("safariDeveloperGUI=BLOCKED_UNVERIFIED_DEVELOPER_CHECKBOX"); return false }
-        if !before {
-            guard press(option) else { print("safariDeveloperGUI=BLOCKED_DEVELOPER_CHECKBOX_ACTION"); return false }
-            try? await Task.sleep(for: .milliseconds(250))
-            if !foreground() || modal(safari) {
-                print("safariDeveloperGUI=BLOCKED_DEVELOPER_PROMPT_UNTOUCHED"); return false
-            }
+    let developerLabels: Set<String> = ["developer", "develop"]
+    let advancedLabels: Set<String> = ["advanced"]
+    let itemLabels: Set<String> = ["allow javascript from apple events"]
+    let toolbarRoles: Set<String> = ["AXRadioButton", "AXButton", "AXTab"]
+    func settingsWindow() -> AXUIElement? {
+        let windows = attribute(safari, "AXWindows") as? [AXUIElement] ?? []
+        return windows.first { window in
+            search(window, roles: toolbarRoles, labels: advancedLabels) != nil
         }
     }
-    guard foreground(), let menu = await waitFor(developer), press(menu), let option = await waitFor({
-        search(menu, roles: ["AXMenuItem"], labels: ["allow javascript from apple events"])
-    }), foreground(), !modal(safari)
-    else { print("safariDeveloperGUI=BLOCKED_NO_APPLE_EVENTS_MENU_ACTION"); return false }
-    if checked(option) == true {
-        print("safariDeveloperGUI=PASS_ALREADY_CHECKED"); return true
+    guard foreground(), !modal(safari),
+          let down = CGEvent(keyboardEventSource: nil, virtualKey: 43, keyDown: true),
+          let up = CGEvent(keyboardEventSource: nil, virtualKey: 43, keyDown: false)
+    else { print("settingsShortcut=BLOCKED_PREFLIGHT"); return false }
+    down.flags = .maskCommand
+    up.flags = .maskCommand
+    down.postToPid(pid)
+    up.postToPid(pid)
+    guard let settings = await waitFor(settingsWindow), foreground() else {
+        print("settingsShortcut=BLOCKED_WINDOW_NOT_FOUND"); return false
     }
-    guard press(option) else { print("safariDeveloperGUI=BLOCKED_APPLE_EVENTS_MENU_ACTION"); return false }
-    try? await Task.sleep(for: .milliseconds(250))
-    guard foreground(), !modal(safari) else {
-        print("safariDeveloperGUI=BLOCKED_SAFARI_APPROVAL_UNTOUCHED"); return false
+    print("settingsShortcut=PASS")
+    func developerTab() -> AXUIElement? { search(settings, roles: toolbarRoles, labels: developerLabels) }
+    if developerTab() == nil {
+        guard let advanced = search(settings, roles: toolbarRoles, labels: advancedLabels), press(advanced),
+              let checkbox = await waitFor({
+                  search(settings, roles: ["AXCheckBox"], labels: ["show features for web developers", "show develop menu in menu bar"])
+              }), foreground(), !modal(safari), let initial = checked(checkbox)
+        else { print("settingsDeveloper=BLOCKED_ADVANCED_CHECKBOX_NOT_VERIFIED"); return false }
+        print("settingsAdvancedDeveloperCheckbox=\(initial)")
+        if !initial, !press(checkbox) { print("settingsDeveloper=BLOCKED_ADVANCED_CHECKBOX_PRESS"); return false }
     }
-    guard let reopened = developer(), press(reopened), let rechecked = await waitFor({
-        search(reopened, roles: ["AXMenuItem"], labels: ["allow javascript from apple events"])
-    }), checked(rechecked) == true
-    else { print("safariDeveloperGUI=BLOCKED_READBACK_NOT_CHECKED"); return false }
-    print("safariDeveloperGUI=PASS_CHECKED_VIA_VISIBLE_MENU")
+    guard let developer = await waitFor(developerTab), foreground(), !modal(safari) else {
+        print("settingsDeveloper=BLOCKED_TAB_NOT_AVAILABLE_OR_MODAL"); return false
+    }
+    let tabCode = AXUIElementPerformAction(developer, kAXPressAction as CFString)
+    print("settingsDeveloperTabPress=\(tabCode.rawValue)")
+    guard tabCode == .success else { return false }
+    guard let checkbox = await waitFor({
+        search(settings, roles: ["AXCheckBox"], labels: itemLabels)
+    }), let initial = checked(checkbox), foreground(), !modal(safari) else {
+        let recognizedDescriptions: Set<String> = ["allow javascript from apple events", "allow remote automation",
+          "allow unsigned extensions", "show automation menu", "developer", "develop", "advanced"]
+        let roles: Set<String> = ["AXCheckBox", "AXMenuItem", "AXPopUpButton", "AXButton", "AXRadioButton", "AXStaticText"]
+        for name in recognizedDescriptions.sorted() {
+            if search(settings, roles: roles, labels: [name]) != nil { print("settingsDeveloperRecognizedLabel=\(name)") }
+        }
+        print("settingsDeveloper=BLOCKED_APPLE_EVENTS_CHECKBOX_NOT_VERIFIED")
+        return false
+    }
+    print("settingsDeveloperAppleEventsBefore=\(initial)")
+    if !initial, !press(checkbox) { print("settingsDeveloper=BLOCKED_APPLE_EVENTS_PRESS"); return false }
+    try? await Task.sleep(for: .milliseconds(350))
+    guard foreground(), !modal(safari), checked(checkbox) == true else {
+        print("settingsDeveloper=BLOCKED_READBACK_OR_APPROVAL_UNTOUCHED"); return false
+    }
+    print("settingsDeveloper=PASS_READBACK_CHECKED")
     return true
 }
 
