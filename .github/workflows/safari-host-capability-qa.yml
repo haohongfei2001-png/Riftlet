@@ -1,0 +1,20 @@
+name: Safari hosted capability QA
+on:
+  pull_request:
+    types: [opened]
+    branches: [codex/riftlet-safari-foreground-base-20261127]
+    paths:
+      - '.github/workflows/safari-host-capability-qa.yml'
+      - 'Tests/SafariHostedForeground/**'
+permissions:
+  contents: read
+jobs:
+  foreground:
+    runs-on: macos-26
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Check real foreground Safari with an isolated offline fixture
+        run: python3 -B Tests/SafariHostedForeground/run.py
