@@ -415,7 +415,7 @@ final class PresentationBoundaryTests: XCTestCase {
         func continueScrollingOlder() throws {
             let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
             let window = try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))
-            panel.scrollTimeline(with: try TimelineWheelFixture.event(in: window, units: .pixel, delta: 8))
+            panel.scrollTimeline(with: try TimelineWheelFixture.event(in: window, units: .line, delta: 1))
         }
 
         panel.olderTimelineReadFailed(before: 17)
@@ -434,6 +434,77 @@ final class PresentationBoundaryTests: XCTestCase {
         panel.olderTimelineReadFailed(before: 18)
         panel.showOldest()
         XCTAssertEqual(cursors, [18, 18])
+        XCTAssertTrue(pressed.isEmpty)
+        XCTAssertTrue(selected.isEmpty)
+    }
+
+    @MainActor func testTimelineRetryNeedsFreshGestureAfterMomentumAndReflow() throws {
+        _ = NSApplication.shared
+        guard !NSScreen.screens.isEmpty else { throw XCTSkip("WindowServer required") }
+        var configuration = RiftConfiguration()
+        configuration.desktopForm = .tray
+        var pressed: [UUID] = [], selected: [UUID] = []
+        let panel = RiftPanelController(mediaDirectory: FileManager.default.temporaryDirectory,
+            configuration: configuration, reduceMotionOverride: { true },
+            onPress: { id, _ in pressed.append(id) }, onSelect: { selected.append($0) })
+        defer { panel.close() }
+        panel.setTrayCapture(enabled: true, defaultMode: .window)
+        let all = (1...44).map { record(Int64($0), visibility: .archived, reason: .automaticArchive) }
+        let original = Array(all[17..<41])
+        var cursors: [Int64] = []
+        panel.onLoadOlderTimeline = { cursors.append($0) }
+        panel.render([], timeline: original, hasOlder: true)
+        panel.showOldest()
+        XCTAssertEqual(cursors, [18])
+        panel.navigate(up: false)
+        XCTAssertGreaterThan(panel.timelineOffset, 0)
+        XCTAssertLessThan(panel.timelineOffset, panel.maximumTimelineOffset)
+
+        func inputWindow() throws -> NSWindow {
+            let row = try XCTUnwrap(panel.diagnosticSnapshot.rows.first)
+            return try XCTUnwrap(NSApp.window(withWindowNumber: row.imageInputWindowNumber))
+        }
+        func olderWheel(_ delta: Int32, phase: CGScrollPhase? = nil,
+                        momentum: Int64? = nil) throws {
+            let event = try TimelineWheelFixture.event(in: inputWindow(), units: .pixel, delta: delta,
+                                                       phase: phase, momentum: momentum)
+            if momentum != nil { XCTAssertFalse(event.momentumPhase.isEmpty) }
+            panel.scrollTimeline(with: event)
+        }
+
+        panel.olderTimelineReadFailed(before: 18)
+        try olderWheel(8, phase: .changed)
+        XCTAssertEqual(cursors, [18], "An old trackpad change is not a fresh gesture")
+        let beforeMomentum = panel.timelineOffset
+        try olderWheel(0, momentum: 1) // kCGMomentumScrollPhaseBegin
+        try olderWheel(8, momentum: 2) // kCGMomentumScrollPhaseContinue
+        try olderWheel(0, momentum: 3) // kCGMomentumScrollPhaseEnd
+        XCTAssertTrue(TimelineWheelFixture.wait(until: { panel.timelineOffset > beforeMomentum }))
+        XCTAssertEqual(cursors, [18], "Even moving momentum must not retry a failed cursor")
+
+        let beforeReflow = panel.timelineOffset
+        panel.render([], timeline: original + Array(all.suffix(3)), hasOlder: true)
+        XCTAssertGreaterThan(panel.timelineOffset, beforeReflow, "Retaining an anchor shifts the scroll offset")
+        XCTAssertEqual(cursors, [18], "A programmatic anchor change cannot retry")
+        try TimelineWheelFixture.trackpad(in: inputWindow(), delta: -8, deliver: panel.scrollTimeline(with:))
+        XCTAssertEqual(cursors, [18], "A fresh gesture toward the latest end cannot retry")
+        try TimelineWheelFixture.trackpad(in: inputWindow(), delta: 1, horizontal: 16, deliver: panel.scrollTimeline(with:))
+        XCTAssertEqual(cursors, [18], "Horizontal motion with a small older-bound component cannot retry")
+        // The fixture begins with zero delta and continues with native .changed.
+        try TimelineWheelFixture.trackpad(in: inputWindow(), delta: 24, deliver: panel.scrollTimeline(with:))
+        XCTAssertEqual(cursors, [18, 18], "A fresh older-bound trackpad gesture retries exactly once")
+        panel.showOldest()
+        XCTAssertEqual(cursors, [18, 18], "An in-flight retry stays latched")
+        panel.olderTimelineReadFailed(before: 18)
+        panel.showOldest()
+        XCTAssertEqual(cursors, [18, 18, 18], "The explicit Oldest action may retry")
+
+        panel.render([], timeline: Array(all[9...]), hasOlder: true)
+        panel.showOldest()
+        XCTAssertEqual(cursors, [18, 18, 18, 10])
+        panel.olderTimelineReadFailed(before: 18)
+        panel.showOldest()
+        XCTAssertEqual(cursors, [18, 18, 18, 10], "A late prior-cursor failure cannot unlock the new request")
         XCTAssertTrue(pressed.isEmpty)
         XCTAssertTrue(selected.isEmpty)
     }

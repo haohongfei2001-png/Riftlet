@@ -6,9 +6,11 @@ import XCTest
 @MainActor
 enum TimelineWheelFixture {
     static func event(in window: NSWindow, units: CGScrollEventUnit,
-                      delta: Int32, phase: CGScrollPhase? = nil) throws -> NSEvent {
+                      delta: Int32, horizontal: Int32 = 0, phase: CGScrollPhase? = nil,
+                      momentum: Int64? = nil) throws -> NSEvent {
         let basis = try XCTUnwrap(CGEvent(scrollWheelEvent2Source: nil, units: units,
-                                         wheelCount: 1, wheel1: delta, wheel2: 0, wheel3: 0))
+                                         wheelCount: horizontal == 0 ? 1 : 2,
+                                         wheel1: delta, wheel2: horizontal, wheel3: 0))
         // A Quartz wheel by itself has no NSEvent.windowNumber, even when its
         // under-pointer fields name a window. Preserve AppKit's window binding.
         let point = window.convertPoint(fromScreen: CGPoint(x: window.frame.midX, y: window.frame.midY))
@@ -23,20 +25,30 @@ enum TimelineWheelFixture {
                                   value: basis.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1))
         bound.setIntegerValueField(.scrollWheelEventPointDeltaAxis1,
                                    value: basis.getIntegerValueField(.scrollWheelEventPointDeltaAxis1))
+        if horizontal != 0 {
+            bound.setIntegerValueField(.scrollWheelEventDeltaAxis2,
+                                       value: basis.getIntegerValueField(.scrollWheelEventDeltaAxis2))
+            bound.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2,
+                                      value: basis.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2))
+            bound.setIntegerValueField(.scrollWheelEventPointDeltaAxis2,
+                                       value: basis.getIntegerValueField(.scrollWheelEventPointDeltaAxis2))
+        }
         if let phase { bound.setIntegerValueField(.scrollWheelEventScrollPhase, value: Int64(phase.rawValue)) }
+        if let momentum { bound.setIntegerValueField(.scrollWheelEventMomentumPhase, value: momentum) }
         let event = try XCTUnwrap(NSEvent(cgEvent: bound))
         XCTAssertTrue(event.window === window)
         XCTAssertEqual(event.windowNumber, window.windowNumber)
         XCTAssertEqual(event.type, .scrollWheel)
         XCTAssertEqual(event.hasPreciseScrollingDeltas, units == .pixel)
         XCTAssertEqual(event.scrollingDeltaY, CGFloat(delta))
+        XCTAssertEqual(event.scrollingDeltaX, CGFloat(horizontal))
         return event
     }
 
-    static func trackpad(in window: NSWindow, delta: Int32,
+    static func trackpad(in window: NSWindow, delta: Int32, horizontal: Int32 = 0,
                          deliver: (NSEvent) -> Void) throws {
         let begin = try event(in: window, units: .pixel, delta: 0, phase: .began)
-        let change = try event(in: window, units: .pixel, delta: delta, phase: .changed)
+        let change = try event(in: window, units: .pixel, delta: delta, horizontal: horizontal, phase: .changed)
         let end = try event(in: window, units: .pixel, delta: 0, phase: .ended)
         XCTAssertEqual([begin.phase, change.phase, end.phase], [.began, .changed, .ended])
         // NSScrollView may track inside scrollWheel(with:). The rest of the

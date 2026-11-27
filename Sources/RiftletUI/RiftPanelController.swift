@@ -601,7 +601,13 @@ public final class RiftPanelController {
     private var timeline: RiftTimelineSnapshot?
     private let timelineScroll = RiftTimelineScrollView(frame: .zero)
     private var timelineViewport: RiftTimelineViewport?
+    private struct FailedOlderRead: Equatable {
+        let cursor: Int64
+        let identity = UUID()
+    }
     private var requestedOlderThan: Int64?
+    private var failedOlderRead: FailedOlderRead?
+    private var retryGesture: FailedOlderRead?
     private var forwardingWheel = false
     public var onLoadOlderTimeline: ((Int64) -> Void)?
     var timelineOffset: CGFloat { timelineScroll.offset }
@@ -1042,6 +1048,7 @@ public final class RiftPanelController {
         guard !closed, suppressed != captureSuppressed else { return }
         captureSuppressed = suppressed
         if suppressed {
+            retryGesture = nil
             cancelDecorations(reason: .cancelled); pager.hide()
             allPresentationPanels.forEach { $0.orderOut(nil) }
         } else if !userHidden {
@@ -1224,6 +1231,7 @@ public final class RiftPanelController {
     public func setUserHidden(_ hidden: Bool) {
         guard !closed, hidden != userHidden else { return }
         userHidden = hidden
+        if hidden { retryGesture = nil }
         resetWindows()
         if !hidden { apply(lastRecords) }
     }
@@ -1275,7 +1283,11 @@ public final class RiftPanelController {
 
     public func render(_ records: [AssetRecord], timeline page: [AssetRecord], hasOlder: Bool) {
         let updated = RiftTimelineSnapshot(active: records, page: page, hasOlder: hasOlder)
-        if timeline?.oldestPageSequence != updated.oldestPageSequence { requestedOlderThan = nil }
+        if timeline?.oldestPageSequence != updated.oldestPageSequence || !updated.hasOlder {
+            requestedOlderThan = nil
+            failedOlderRead = nil
+            retryGesture = nil
+        }
         let anchor = pagerLayout?.rows.first?.assetID
         let viewport = timelineViewport
         let oldRow = anchor.flatMap { timeline?.ranks[$0] }.flatMap { viewport?.row(forRank: $0) }
@@ -2164,6 +2176,7 @@ public final class RiftPanelController {
     private func timelineDidScroll() {
         guard timeline != nil, timelineViewport != nil, !closed else { return }
         let browsing = timelineScroll.offset > 0
+        if !browsing { retryGesture = nil }
         let changed = isShowingRecentHistory != browsing
         isShowingRecentHistory = browsing
         viewportAnchor = nil
@@ -2179,35 +2192,75 @@ public final class RiftPanelController {
     public func olderTimelineReadFailed(before cursor: Int64) {
         guard requestedOlderThan == cursor, timeline?.oldestPageSequence == cursor else { return }
         requestedOlderThan = nil
+        failedOlderRead = FailedOlderRead(cursor: cursor)
+        retryGesture = nil
     }
 
-    private func requestOlderTimelineIfNearEnd() {
+    private func requestOlderTimelineIfNearEnd(retrying authorization: FailedOlderRead? = nil) {
         guard !closed, !userHidden, !captureSuppressed, timelineScroll.offset > 0,
               let snapshot = timeline, let viewport = timelineViewport, snapshot.hasOlder,
               let cursor = snapshot.oldestPageSequence, let load = onLoadOlderTimeline,
               timelineScroll.offset + viewport.pitch >= viewport.maximumOffset,
               requestedOlderThan != cursor else { return }
+        if let failedOlderRead, failedOlderRead.cursor == cursor {
+            guard authorization == failedOlderRead else { return }
+            self.failedOlderRead = nil
+            retryGesture = nil
+        }
         requestedOlderThan = cursor
         load(cursor)
+    }
+
+    private func olderReadRetryAuthorization(for event: NSEvent) -> FailedOlderRead? {
+        guard event.momentumPhase.isEmpty else { retryGesture = nil; return nil }
+        let phase = event.phase
+        let y = event.scrollingDeltaY
+        let x = event.scrollingDeltaX
+        let older = y > abs(x)
+        if phase.contains(.began) {
+            retryGesture = older || (x == 0 && y == 0) ? failedOlderRead : nil
+            return older ? retryGesture : nil
+        }
+        if phase.contains(.ended) || phase.contains(.cancelled) || phase.contains(.mayBegin) {
+            retryGesture = nil
+            return nil
+        }
+        if phase.contains(.changed) {
+            // A zero-delta begin can be followed by a legitimate vertical
+            // change. Horizontal/latest-bound motion cannot arm the retry.
+            if !older {
+                if x != 0 || y != 0 { retryGesture = nil }
+                return nil
+            }
+            return retryGesture
+        }
+        if phase.isEmpty && !event.hasPreciseScrollingDeltas {
+            retryGesture = nil
+            return older ? failedOlderRead : nil
+        }
+        return nil
     }
 
     public func scrollTimeline(with event: NSEvent) { scroll(event) }
 
     private func scroll(_ event: NSEvent) {
-        guard !forwardingWheel, !userHidden, !closed, !captureSuppressed, !gate.isHolding,
-              activeFileDrag == nil else { return }
+        guard !forwardingWheel else { return }
+        guard !userHidden, !closed, !captureSuppressed, !gate.isHolding, activeFileDrag == nil else {
+            retryGesture = nil
+            return
+        }
         if timeline == nil { render(lastRecords, timeline: lastRecords, hasOlder: false) }
         if trayExpanded { setTrayExpanded(false) }
         finishQueueTransition(allowShift: false)
+        let retry = olderReadRetryAuthorization(for: event)
         let before = timelineScroll.offset
         forwardingWheel = true
         timelineScroll.scrollWheel(with: event)
         forwardingWheel = false
-        // At the oldest edge AppKit may clamp the wheel without notifying its
-        // clip view. An explicit older-bound gesture can still retry a read.
-        if event.scrollingDeltaY > 0, event.momentumPhase.isEmpty, timelineScroll.offset == before,
-           before == timelineScroll.maximumOffset {
-            requestOlderTimelineIfNearEnd()
+        // The offset observer can prefetch a new cursor, never retry a failed
+        // one. An explicit older-bound event can retry even at a clamped edge.
+        if let retry, retry == failedOlderRead, timelineScroll.offset >= before {
+            requestOlderTimelineIfNearEnd(retrying: retry)
         }
     }
 
@@ -2245,8 +2298,9 @@ public final class RiftPanelController {
 
     public func showOldest() {
         if timeline != nil, !userHidden, !gate.isHolding {
+            let retry = failedOlderRead
             timelineScroll.move(to: timelineScroll.maximumOffset)
-            requestOlderTimelineIfNearEnd()
+            if retry == failedOlderRead { requestOlderTimelineIfNearEnd(retrying: retry) }
             return
         }
         if isShowingRecentHistory { showRecentHistory(false) }
