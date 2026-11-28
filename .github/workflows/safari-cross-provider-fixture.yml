@@ -1,0 +1,24 @@
+name: Safari cross-provider adapter fixture (QA only)
+on:
+  pull_request:
+    branches: [codex/riftlet-safari-foreground-base-20261127]
+    paths:
+      - '.github/workflows/safari-cross-provider-fixture.yml'
+      - 'Tests/RiftletAdaptersTests/SafariCrossProviderFixtureTests.swift'
+permissions:
+  contents: read
+jobs:
+  isolated-safari-adapter:
+    runs-on: macos-26
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Run one new AppKit/JavaScriptCore regression
+        run: |
+          set -eu
+          git log -1 --format='%H'
+          sw_vers
+          uname -m
+          swift test --filter SafariCrossProviderFixtureTests
