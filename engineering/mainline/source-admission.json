@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "reviewedBase": "2b270aec5cf57d2b4165acd52bcc730fa1052a02",
-  "reviewedSource": "30ee1b12030f413d334c0cc168f23c570b272f89",
-  "reviewedTree": "9fa89755dcb23dd8a8b7033b52ee8b757d874db5",
-  "authorRole": "riftlet_110_product_integration",
+  "reviewedBase": "1b13707d306b47499a096715e0618d22ac7690a5",
+  "reviewedSource": "4561ca607baf7e3471a0f039751f115289ee3890",
+  "reviewedTree": "bd3beabc958bc7746a9d6a31cc75c6403727395c",
+  "authorRole": "riftlet_ci_timeline_integration",
   "reviews": [
     {
-      "reviewer": "Riftlet cloud QA independent reviewer riftlet_ci",
-      "source": "30ee1b12030f413d334c0cc168f23c570b272f89",
-      "tree": "9fa89755dcb23dd8a8b7033b52ee8b757d874db5",
+      "reviewer": "Dot root independent Riftlet source reviewer",
+      "source": "4561ca607baf7e3471a0f039751f115289ee3890",
+      "tree": "bd3beabc958bc7746a9d6a31cc75c6403727395c",
       "result": "PASS",
-      "sha256": "6688e1ce5a4a03e61715661aaca33d301b4bdfa9dc20d559e90a8f5b884b0f0c",
-      "report": "{\n  \"reviewedSource\": \"30ee1b12030f413d334c0cc168f23c570b272f89\",\n  \"reviewedTree\": \"9fa89755dcb23dd8a8b7033b52ee8b757d874db5\",\n  \"reviewer\": \"Riftlet cloud QA independent reviewer riftlet_ci\",\n  \"result\": \"PASS\",\n  \"reviewedBase\": \"2b270aec5cf57d2b4165acd52bcc730fa1052a02\",\n  \"scope\": \"Independent source-composition re-review for the original build 68 candidate only. The reviewer did not author the source or the acceptance-document change. This is not a GitHub account approval, a release approval, a package rebuild, or acceptance of the later timeline production patch.\",\n  \"priorIndependentSourceReview\": {\n    \"source\": \"cd4195ada9ea5bfb8fd533e1350fe3dd8c8aa1dd\",\n    \"tree\": \"58fe7e2caab255ca2959f002b8f845e701de3a65\",\n    \"reviewer\": \"Independent 1.1.0 source reviewer, Codex agent independent_110\",\n    \"reportSha256\": \"98aa01330a1c23328195414091dcd85c029ba1ffe3ee175a0df8a06b25fbf0bf\",\n    \"verifiedRetainedScope\": \"All paths outside the single acceptance document and the inherited admission JSON are byte-and-mode unchanged from this individually reviewed source. The previous H admission JSON on G did not change from H.\"\n  },\n  \"findings\": [\n    \"B is the observed main. B to this G contains 71 changed paths. Relative to previous reviewed G, only the admission JSON and docs/releases/1.1.0/ACCEPTANCE.md differ. Relative to the previous admission-only child 26f75a385373bd81739fe370e40611b39cb4b872, only the acceptance document differs.\",\n    \"Independently reviewed the changed acceptance document: it binds the signed DMG hash, distinguishes earlier native tests from guest web preflight, explicitly records two pass, one partial and 54 not run, preserves the existing Safari setting and Chrome supplementary-selection limitations, and does not claim a new real-site pass.\",\n    \"The signed candidate remains attributable to be4c20d5036d7bbad78f283633d66c5779a13df5, DMG SHA-256 9f654539619b87ead785828e83cde631896089abc055602bed805588544511f1. Only archived tests, documentation and admission metadata differ, not the existing signed application's production source or resources.\",\n    \"The present live #137 merge candidate still fails admission because its head is a documentation child of the older H, not an admission-only child of this G. A new H and all checks on the actual ordered B/H merge remain required. No release state or support claim is changed by this review.\"\n  ]\n}\n"
+      "sha256": "cd55fd80904d91496a862fcbb2adb19045ae228549e2a49e7eb671d201919f44",
+      "report": "{\n  \"reviewedBase\": \"1b13707d306b47499a096715e0618d22ac7690a5\",\n  \"reviewedSource\": \"4561ca607baf7e3471a0f039751f115289ee3890\",\n  \"reviewedTree\": \"bd3beabc958bc7746a9d6a31cc75c6403727395c\",\n  \"reviewer\": \"Dot root independent Riftlet source reviewer\",\n  \"result\": \"PASS\",\n  \"scope\": \"Independent exact four-file source review B to G for a stacked, unsigned follow-up. Not GitHub account approval, merge, release, or a re-review of unchanged files.\",\n  \"findings\": [\n    \"The older cursor is recorded before the read, bounds update only with a renderable page, and failure/staleness/return-to-latest release only the matching latch. Coalesced refresh retains the attempt while history is open.\",\n    \"The one-time first-use check still requires an actual persisted, admitted matching START; moving it before the concurrent refresh check does not broaden consent.\",\n    \"A fresh older-directed scroll or explicit Oldest can retry a local read; inertia, relayout, inverse or dominantly horizontal input and requests in flight do not duplicate.\",\n    \"AppKit tests cover the matching cursor, clamped edge, fresh phased trackpad, momentum and reflow through synthetic events and isolated UI callbacks. Physical gestures and signed build 68 remain unverified for this change.\",\n    \"No adapter, transfer, release, or gate changes. Keep the inherited production boundary, including safeRetry false; a local read retry is not an upload retry.\"\n  ]\n}\n"
     }
   ],
   "productionAdmission": {

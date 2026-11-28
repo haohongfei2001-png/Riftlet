@@ -599,7 +599,12 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
             self.prepareBrowser()
         }
         rift?.onLoadOlderTimeline = { [weak self] cursor in
-            guard let self, cursor == self.timelineOldestLoaded, self.timelinePageRequest == nil else { return }
+            guard let self else { return }
+            guard cursor == self.timelineOldestLoaded else {
+                self.rift?.olderTimelineReadFailed(before: cursor)
+                return
+            }
+            guard self.timelinePageRequest == nil else { return }
             self.timelinePageRequest = cursor
             Task { await self.refresh() }
         }
@@ -1511,18 +1516,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
         repeat {
             refreshRequested = false
             guard let store else { break }
+            var attemptedOlderCursor: Int64?
             do {
-                let active = try await store.assets()
                 if let cursor = timelinePageRequest {
                     timelinePageRequest = nil
-                    if cursor == timelineOldestLoaded,
-                       let older = try await store.historyPage(beforeSequence: cursor).records.last {
-                        timelineOldestLoaded = older.sequence
-                        extendedTimeline = true
-                    }
+                    if cursor == timelineOldestLoaded { attemptedOlderCursor = cursor }
+                    else { rift?.olderTimelineReadFailed(before: cursor) }
+                }
+                let active = try await store.assets()
+                let expandedOldest: Int64?
+                if let cursor = attemptedOlderCursor {
+                    expandedOldest = try await store.historyPage(beforeSequence: cursor).records.last?.sequence
+                } else {
+                    expandedOldest = nil
                 }
                 let page: (records: [AssetRecord], hasOlder: Bool)
-                if extendedTimeline, let oldest = timelineOldestLoaded {
+                if let oldest = expandedOldest ?? (extendedTimeline ? timelineOldestLoaded : nil) {
                     page = try await store.loadedTimeline(through: oldest)
                 } else {
                     page = try await store.historyPage(beforeSequence: nil)
@@ -1569,9 +1578,22 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                     do { detectedSource = try await captureLocation.currentDirectory() }
                     catch { detectedSource = nil; preferenceIssue = .classify(error, context: .locationPreference) }
                 }
-                if refreshRequested { continue }
                 if mode == .capture, reviewEnvironment == nil, await firstUse.reconcileFirstAttachment(in: store) {
                     settingsHost?.onboarding.closeForTeardown()
+                }
+                if refreshRequested {
+                    // A concurrent refresh must not silently discard the
+                    // pending page while its panel cursor remains latched.
+                    if timelinePageRequest == nil, let cursor = attemptedOlderCursor {
+                        if rift?.isShowingRecentHistory == true { timelinePageRequest = cursor }
+                        else { rift?.olderTimelineReadFailed(before: cursor) }
+                    }
+                    continue
+                }
+                if let cursor = attemptedOlderCursor, rift?.isShowingRecentHistory != true {
+                    rift?.olderTimelineReadFailed(before: cursor)
+                    refreshRequested = true
+                    continue
                 }
                 if mode.usesWebAdapter, CommandLine.arguments.contains("--acceptance-trace") {
                     for record in snapshot {
@@ -1599,6 +1621,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 let hasNewlyVisible = !activeIDs.isSubset(of: visibleIDs)
                 let hadClickableThumbnails = hasClickableThumbnails
                 visibleIDs = activeIDs
+                if expandedOldest != nil { extendedTimeline = true }
                 timelineOldestLoaded = timeline.last?.sequence
                 hasRecentScreenshots = page.hasOlder || timeline.contains { $0.visibility != .visible }
                 if hasNewlyVisible || (!hadClickableThumbnails && hasClickableThumbnails) { prepareBrowser() }
@@ -1643,6 +1666,7 @@ private final class ApplicationController: NSObject, NSApplicationDelegate, NSMe
                 if history?.isVisible == true { await refreshHistory() }
                 updateSetup()
             } catch {
+                if let cursor = attemptedOlderCursor { rift?.olderTimelineReadFailed(before: cursor) }
                 feedback.diagnostics.record(.queueReadIssue)
                 if history?.isVisible == true { history?.showReadError() }
                 showIssue(ProductCopy.text("暂时无法读取截图。请在截图仓库中重试。", "Could not read screenshots. Open the library to try again."))
